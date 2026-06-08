@@ -2305,7 +2305,7 @@ function renderAgences(){
       <td>${a.tel||'<span style="color:var(--text3)">—</span>'}</td>
       <td><span class="badge ${badge}">${a.statut}</span></td>
       <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text3);font-size:12px;">${a.commentaire||'—'}</td>
-      <td><div class="report-opts" style="margin:0;">${['1j','2j','3j','1s','2s','1m','2m'].map(k=>`<div class="ropt" onclick="quickRelance('${a.id}','${k}')" title="Relancer dans ${REPORT_LABELS[k]}">${REPORT_LABELS[k]}</div>`).join('')}</div></td>
+      <td><div class="report-opts" style="margin:0;">${['1j','2j','3j','1s','2s','1m','2m'].map(k=>`<div class="ropt" onclick="quickRelance('${a.id}','${k}')" title="${REPORT_LABELS[k]}" style="padding:3px 7px;font-size:10px;">${k}</div>`).join('')}</div></td>
       <td><div style="display:flex;gap:5px;">
         <button class="btn btn-secondary btn-xs" onclick="editAgence('${a.id}')">✏️ Modifier</button>
         <button class="btn btn-danger btn-xs" onclick="deleteAgence('${a.id}')">🗑️</button>
