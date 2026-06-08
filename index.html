@@ -1,1 +1,3063 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalifrance — CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================
+   DESIGN TOKENS — Kalifrance
+============================= */
+:root {
+  /* Brand */
+  --teal:      #1a7fa0;   /* bleu pétrole principal */
+  --teal-d:    #145f78;   /* foncé */
+  --teal-l:    #2299be;   /* clair */
+  --teal-xl:   #d6eef5;   /* très clair bg */
+  --pink:      #e91e8c;   /* rose/magenta */
+  --pink-d:    #c41575;
+  --pink-l:    #f03ba0;
+  --pink-bg:   rgba(233,30,140,0.08);
 
+  /* Layout */
+  --bg:        #f0f4f8;
+  --bg2:       #e8edf3;
+  --surface:   #ffffff;
+  --surface2:  #f7f9fc;
+  --surface3:  #edf2f7;
+  --border:    #d1dce8;
+  --border2:   #b8cad9;
+
+  /* Text */
+  --text:      #1a2a3a;
+  --text2:     #4a6070;
+  --text3:     #8ba3b5;
+
+  /* Status */
+  --emerald:   #0f9d58;
+  --emerald-bg:#e6f7ef;
+  --amber:     #f59e0b;
+  --amber-bg:  #fef3c7;
+  --rose:      #e53e3e;
+  --rose-bg:   #fee2e2;
+  --violet:    #7c3aed;
+  --violet-bg: #ede9fe;
+  --sky:       #0284c7;
+  --sky-bg:    #e0f2fe;
+  --orange:    #ea580c;
+  --orange-bg: #ffedd5;
+  --slate:     #64748b;
+  --slate-bg:  #f1f5f9;
+
+  --sidebar-w: 256px;
+  --topbar-h:  62px;
+  --radius:    8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 3px rgba(26,47,64,0.08);
+  --shadow-md: 0 4px 16px rgba(26,47,64,0.12);
+  --shadow-lg: 0 8px 32px rgba(26,47,64,0.16);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 14px; }
+body {
+  font-family: 'Open Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================
+   SIDEBAR
+============================= */
+.sidebar {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--teal-d);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow: hidden;
+}
+
+/* top gradient bar */
+.sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--pink), var(--teal-l), var(--pink));
+  z-index: 1;
+}
+
+.sidebar-logo {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 3px;
+}
+
+/* SVG star logo inline */
+.logo-mark {
+  width: 40px; height: 40px;
+  flex-shrink: 0;
+}
+
+.logo-text h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.logo-text span {
+  font-size: 10px;
+  color: rgba(255,255,255,0.5);
+  font-weight: 500;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  display: block;
+  margin-top: 1px;
+}
+
+.nav { flex: 1; padding: 14px 10px; overflow-y: auto; }
+.nav::-webkit-scrollbar { width: 0; }
+
+.nav-group-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  padding: 12px 10px 5px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  transition: all .18s;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 2px;
+}
+.nav-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.nav-item.active {
+  background: var(--pink);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(233,30,140,0.35);
+}
+
+.nav-icon {
+  width: 30px; height: 30px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  background: rgba(255,255,255,0.08);
+  flex-shrink: 0;
+  transition: background .18s;
+}
+.nav-item.active .nav-icon { background: rgba(255,255,255,0.2); }
+
+.sidebar-footer {
+  padding: 14px 16px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sidebar-footer-av {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  background: var(--pink);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px; font-weight: 800; color: #fff;
+  flex-shrink: 0;
+}
+.sidebar-footer-info .name { font-size: 12.5px; font-weight: 700; color: #fff; }
+.sidebar-footer-info .role { font-size: 10.5px; color: rgba(255,255,255,0.4); }
+
+/* ============================
+   MAIN
+============================= */
+.main { margin-left: var(--sidebar-w); min-height: 100vh; }
+
+.topbar {
+  height: var(--topbar-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: var(--shadow-sm);
+}
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.topbar-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px; font-weight: 800;
+  color: var(--teal-d);
+  letter-spacing: -0.2px;
+}
+.topbar-sub { font-size: 11.5px; color: var(--text3); margin-top: 1px; }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+
+/* topbar accent line */
+.topbar::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--teal), var(--pink));
+}
+
+.content { padding: 24px 28px; }
+
+/* ============================
+   BUTTONS
+============================= */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 18px;
+  border-radius: var(--radius);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12.5px; font-weight: 700;
+  cursor: pointer; border: none;
+  transition: all .18s; white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+.btn-primary {
+  background: var(--teal);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(26,127,160,0.3);
+}
+.btn-primary:hover { background: var(--teal-l); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(26,127,160,0.4); }
+
+.btn-pink {
+  background: var(--pink);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(233,30,140,0.3);
+}
+.btn-pink:hover { background: var(--pink-l); transform: translateY(-1px); }
+
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--text2);
+  border: 1.5px solid var(--border);
+}
+.btn-secondary:hover { background: var(--teal-xl); border-color: var(--teal); color: var(--teal); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text2);
+  border: 1.5px solid var(--border);
+}
+.btn-ghost:hover { background: var(--surface3); color: var(--text); }
+
+.btn-success {
+  background: var(--emerald-bg);
+  color: var(--emerald);
+  border: 1.5px solid rgba(15,157,88,0.2);
+}
+.btn-danger {
+  background: var(--rose-bg);
+  color: var(--rose);
+  border: 1.5px solid rgba(229,62,62,0.2);
+}
+
+.btn-sm  { padding: 6px 14px; font-size: 12px; }
+.btn-xs  { padding: 4px 10px; font-size: 11px; }
+
+/* ============================
+   STAT CARDS
+============================= */
+.stats-row { display: grid; gap: 14px; margin-bottom: 22px; }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .2s, transform .2s;
+}
+.stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+.stat-card .stripe {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.stat-card.teal   .stripe { background: var(--teal); }
+.stat-card.pink   .stripe { background: var(--pink); }
+.stat-card.green  .stripe { background: var(--emerald); }
+.stat-card.rose   .stripe { background: var(--rose); }
+.stat-card.amber  .stripe { background: var(--amber); }
+.stat-card.orange .stripe { background: var(--orange); }
+.stat-card.violet .stripe { background: var(--violet); }
+.stat-card.sky    .stripe { background: var(--sky); }
+.stat-card.slate  .stripe { background: var(--slate); }
+
+.stat-icon {
+  width: 38px; height: 38px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin-bottom: 14px;
+}
+.stat-card.teal   .stat-icon { background: var(--teal-xl); }
+.stat-card.pink   .stat-icon { background: var(--pink-bg); }
+.stat-card.green  .stat-icon { background: var(--emerald-bg); }
+.stat-card.rose   .stat-icon { background: var(--rose-bg); }
+.stat-card.amber  .stat-icon { background: var(--amber-bg); }
+.stat-card.orange .stat-icon { background: var(--orange-bg); }
+.stat-card.violet .stat-icon { background: var(--violet-bg); }
+.stat-card.sky    .stat-icon { background: var(--sky-bg); }
+
+.stat-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px; font-weight: 700;
+  color: var(--text3); text-transform: uppercase;
+  letter-spacing: 0.9px; margin-bottom: 6px;
+}
+.stat-value {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 32px; font-weight: 900;
+  line-height: 1; letter-spacing: -1px;
+}
+.stat-card.teal   .stat-value { color: var(--teal); }
+.stat-card.pink   .stat-value { color: var(--pink); }
+.stat-card.green  .stat-value { color: var(--emerald); }
+.stat-card.rose   .stat-value { color: var(--rose); }
+.stat-card.amber  .stat-value { color: var(--amber); }
+.stat-card.orange .stat-value { color: var(--orange); }
+.stat-card.violet .stat-value { color: var(--violet); }
+.stat-card.sky    .stat-value { color: var(--sky); }
+.stat-sub { font-size: 11.5px; color: var(--text3); margin-top: 5px; }
+
+/* ============================
+   PANEL
+============================= */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow-sm);
+}
+.panel-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface2);
+}
+.panel-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13.5px; font-weight: 800;
+  color: var(--teal-d);
+  display: flex; align-items: center; gap: 8px;
+}
+.panel-title-icon {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  background: var(--teal-xl);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+
+/* ============================
+   TABLE
+============================= */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 600px; }
+thead tr { border-bottom: 2px solid var(--border); }
+th {
+  text-align: left;
+  padding: 11px 18px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10.5px; font-weight: 700;
+  color: var(--teal-d);
+  text-transform: uppercase; letter-spacing: 0.8px;
+  background: var(--surface2);
+  white-space: nowrap;
+}
+td {
+  padding: 13px 18px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tbody tr { transition: background .1s; }
+tbody tr:hover td { background: var(--teal-xl); }
+
+/* ============================
+   BADGES
+============================= */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px; font-weight: 700;
+  white-space: nowrap;
+}
+.badge::before { content: '●'; font-size: 7px; }
+.badge-teal    { background: var(--teal-xl);    color: var(--teal); }
+.badge-pink    { background: var(--pink-bg);     color: var(--pink); }
+.badge-emerald { background: var(--emerald-bg);  color: var(--emerald); }
+.badge-sky     { background: var(--sky-bg);      color: var(--sky); }
+.badge-amber   { background: var(--amber-bg);    color: var(--amber); }
+.badge-rose    { background: var(--rose-bg);     color: var(--rose); }
+.badge-slate   { background: var(--slate-bg);    color: var(--slate); }
+.badge-violet  { background: var(--violet-bg);   color: var(--violet); }
+.badge-orange  { background: var(--orange-bg);   color: var(--orange); }
+
+/* ============================
+   FILTER BAR
+============================= */
+.filter-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; flex-wrap: wrap; }
+.filter-bar input, .filter-bar select {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  font-family: 'Open Sans', sans-serif;
+  font-size: 13px; outline: none;
+  transition: border-color .18s;
+}
+.filter-bar input { flex: 1; min-width: 200px; }
+.filter-bar input:focus, .filter-bar select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(26,127,160,0.1); }
+.filter-bar input::placeholder { color: var(--text3); }
+
+/* ============================
+   SECTION HEAD
+============================= */
+.section-head {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px; font-weight: 700;
+  color: var(--text2);
+  text-transform: uppercase; letter-spacing: 1.2px;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--teal-xl);
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* ============================
+   MODAL
+============================= */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(20,40,55,0.6);
+  backdrop-filter: blur(5px);
+  z-index: 300;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .22s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 580px; max-width: 96vw; max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(16px) scale(0.98);
+  transition: transform .22s;
+}
+.modal-lg { width: 760px; }
+.modal-overlay.open .modal { transform: translateY(0) scale(1); }
+.modal-header {
+  padding: 20px 24px 16px;
+  border-bottom: 2px solid var(--teal-xl);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--surface); z-index: 2;
+}
+.modal-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--teal), var(--pink));
+}
+.modal-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px; font-weight: 800;
+  color: var(--teal-d);
+}
+.modal-close {
+  width: 30px; height: 30px; border-radius: 7px;
+  background: var(--surface3); border: 1px solid var(--border);
+  color: var(--text3); display: flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 15px;
+  transition: all .15s;
+}
+.modal-close:hover { color: var(--rose); background: var(--rose-bg); }
+.modal-body { padding: 20px 24px; }
+.form-group { margin-bottom: 14px; }
+.form-label {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10.5px; font-weight: 700;
+  color: var(--teal-d); text-transform: uppercase;
+  letter-spacing: 0.6px; margin-bottom: 6px;
+}
+.form-control {
+  width: 100%;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  padding: 10px 14px; border-radius: var(--radius);
+  font-family: 'Open Sans', sans-serif;
+  font-size: 13px; outline: none;
+  transition: border-color .18s, box-shadow .18s;
+}
+.form-control:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(26,127,160,0.1); }
+.form-control::placeholder { color: var(--text3); }
+textarea.form-control { resize: vertical; min-height: 76px; }
+select.form-control option { background: var(--surface); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.modal-footer {
+  padding: 14px 24px; border-top: 1px solid var(--border);
+  display: flex; gap: 10px; justify-content: flex-end;
+  position: sticky; bottom: 0; background: var(--surface);
+}
+
+/* ============================
+   CALENDAR
+============================= */
+.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.cal-nav { display: flex; align-items: center; gap: 10px; }
+.cal-month-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px; font-weight: 900;
+  color: var(--teal-d);
+  min-width: 200px; text-align: center;
+  letter-spacing: -0.3px;
+}
+.cal-legend { display: flex; gap: 10px; flex-wrap: wrap; }
+.cal-days-header { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; margin-bottom: 6px; }
+.cal-day-label {
+  text-align: center; font-size: 11px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 0;
+}
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; margin-bottom: 20px; }
+.day-cell {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  min-height: 88px; padding: 7px 8px;
+  cursor: pointer; transition: all .15s;
+}
+.day-cell:hover { border-color: var(--teal); background: var(--teal-xl); }
+.day-cell.today { border-color: var(--pink); background: var(--pink-bg); }
+.day-num {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px; font-weight: 800;
+  color: var(--text3); margin-bottom: 4px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.day-cell.today .day-num { color: var(--pink); }
+.day-badge { font-size: 9px; background: var(--emerald-bg); color: var(--emerald); border-radius: 3px; padding: 1px 5px; font-weight: 700; }
+.event-chip {
+  font-size: 10px; padding: 2px 6px;
+  border-radius: 4px; margin-bottom: 2px;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  font-weight: 600;
+}
+.event-chip.visite  { background: var(--teal-xl); color: var(--teal); }
+.event-chip.relance { background: var(--amber-bg); color: var(--amber); }
+.event-chip.rdv     { background: var(--pink-bg); color: var(--pink); }
+.relance-badge {
+  font-size: 9px; font-weight: 800;
+  background: var(--amber-bg); color: var(--amber);
+  padding: 1px 5px; border-radius: 3px; margin-left: 3px;
+}
+
+/* ============================
+   AGENCE ROW (tournée)
+============================= */
+.agence-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 7px;
+  transition: border-color .15s;
+}
+.agence-row:focus-within { border-color: var(--teal); }
+.agence-row-num {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px; font-weight: 800;
+  color: var(--text3); min-width: 20px; text-align: center;
+}
+.agence-row input {
+  background: transparent; border: none;
+  color: var(--text); font-family: 'Open Sans', sans-serif;
+  font-size: 13px; outline: none;
+}
+.agence-row input::placeholder { color: var(--text3); }
+.agence-row .del-row {
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); padding: 3px 6px; border-radius: 5px;
+  font-size: 14px; transition: color .15s;
+}
+.agence-row .del-row:hover { color: var(--rose); }
+
+/* ============================
+   STATUS PILLS
+============================= */
+.status-pills { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+.sp {
+  padding: 4px 10px; border-radius: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10.5px; font-weight: 700;
+  cursor: pointer; border: 1.5px solid transparent;
+  transition: all .15s; opacity: 0.5;
+}
+.sp.on { opacity: 1; transform: scale(1.05); }
+.sp.sp-prospect  { background: var(--sky-bg);     color: var(--sky);     border-color: rgba(2,132,199,0.25); }
+.sp.sp-part      { background: var(--emerald-bg);  color: var(--emerald); border-color: rgba(15,157,88,0.25); }
+.sp.sp-non       { background: var(--rose-bg);     color: var(--rose);    border-color: rgba(229,62,62,0.25); }
+.sp.sp-revoir    { background: var(--amber-bg);    color: var(--amber);   border-color: rgba(245,158,11,0.25); }
+.sp.sp-mail      { background: var(--orange-bg);   color: var(--orange);  border-color: rgba(234,88,12,0.25); }
+.sp.sp-bonmail   { background: var(--teal-xl);     color: var(--teal);    border-color: rgba(26,127,160,0.25); }
+.sp.sp-contrat   { background: var(--violet-bg);   color: var(--violet);  border-color: rgba(124,58,237,0.25); }
+.sp.sp-signe     { background: var(--pink-bg);     color: var(--pink);    border-color: rgba(233,30,140,0.3); }
+
+/* ============================
+   REPORT OPTIONS
+============================= */
+.report-opts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.ropt {
+  padding: 5px 12px; border-radius: 7px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11.5px; font-weight: 700;
+  cursor: pointer; border: 1.5px solid var(--border);
+  background: var(--surface2); color: var(--text3);
+  transition: all .15s;
+}
+.ropt:hover, .ropt.on {
+  background: var(--teal-xl);
+  color: var(--teal); border-color: var(--teal);
+}
+
+/* ============================
+   MAPS LINK
+============================= */
+.maps-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11.5px; color: var(--teal);
+  text-decoration: none; padding: 2px 8px;
+  border-radius: 5px; background: var(--teal-xl);
+  transition: background .15s;
+  font-family: 'Montserrat', sans-serif; font-weight: 700;
+}
+.maps-link:hover { background: rgba(26,127,160,0.15); }
+
+/* ============================
+   COMMISSION BANNER
+============================= */
+.commission-banner {
+  background: linear-gradient(135deg, var(--teal-d) 0%, var(--teal) 100%);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 22px;
+  display: flex; align-items: center; justify-content: space-between;
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(26,127,160,0.35);
+  position: relative; overflow: hidden;
+}
+.commission-banner::after {
+  content: '';
+  position: absolute; top: -30px; right: -30px;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: rgba(233,30,140,0.15);
+}
+.commission-banner-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px; font-weight: 700;
+  color: rgba(255,255,255,0.7);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
+}
+.commission-banner-amount {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 40px; font-weight: 900;
+  color: #fff; letter-spacing: -2px;
+}
+.commission-banner-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+.commission-banner-rate { font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 4px; font-family: 'Montserrat', sans-serif; font-weight: 600; }
+.commission-banner-pct {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 36px; font-weight: 900; color: var(--pink);
+}
+.progress-bar { height: 5px; background: rgba(255,255,255,0.2); border-radius: 3px; overflow: hidden; margin-top: 6px; width: 100px; }
+.progress-fill { height: 100%; background: var(--pink); border-radius: 3px; transition: width .4s; }
+
+/* ============================
+   AVATAR
+============================= */
+.avatar {
+  width: 36px; height: 36px; border-radius: 9px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px; font-weight: 800; flex-shrink: 0;
+}
+
+/* ============================
+   BILAN ITEM
+============================= */
+.bilan-item {
+  padding: 14px 16px;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 8px;
+}
+.bilan-item-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.bilan-item-num {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px; font-weight: 800;
+  color: var(--text3); min-width: 20px;
+}
+.bilan-item-name { font-weight: 700; font-size: 14px; flex: 1; color: var(--teal-d); }
+
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* ============================
+   TOAST
+============================= */
+.toast {
+  position: fixed; bottom: 22px; right: 22px;
+  background: var(--teal-d);
+  border-left: 4px solid var(--pink);
+  border-radius: var(--radius-lg);
+  padding: 14px 20px;
+  font-size: 13px; font-weight: 600;
+  color: #fff;
+  transform: translateY(80px); opacity: 0;
+  transition: all .28s cubic-bezier(.34,1.56,.64,1);
+  z-index: 999; max-width: 320px;
+  box-shadow: var(--shadow-md);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+
+
+::-webkit-scrollbar-track { background: var(--surface3); }
+::-webkit-scrollbar-thumb { background: var(--teal-xl); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--teal); }
+
+/* DAY VIEW MODAL */
+.day-cell.has-ev { cursor: pointer; }
+.day-cell.has-ev:hover { border-color: var(--teal); box-shadow: 0 2px 12px rgba(26,127,160,0.15); }
+
+.day-view-overlay {
+  position: fixed; inset: 0;
+  background: rgba(20,40,55,0.65);
+  backdrop-filter: blur(6px);
+  z-index: 400;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .22s;
+}
+.day-view-overlay.open { opacity: 1; pointer-events: all; }
+
+.day-view {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  width: 680px; max-width: 96vw; max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 12px 48px rgba(26,47,64,0.22);
+  transform: translateY(18px) scale(0.97);
+  transition: transform .22s;
+}
+.day-view-overlay.open .day-view { transform: translateY(0) scale(1); }
+
+.day-view-header {
+  padding: 0;
+  position: sticky; top: 0; z-index: 2;
+  border-radius: 18px 18px 0 0;
+  overflow: hidden;
+}
+.day-view-hero {
+  background: linear-gradient(135deg, var(--teal-d), var(--teal));
+  padding: 24px 26px 20px;
+  display: flex; align-items: flex-start; justify-content: space-between;
+}
+.day-view-date {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 28px; font-weight: 900;
+  color: #fff; letter-spacing: -0.5px;
+}
+.day-view-sub {
+  font-size: 13px; color: rgba(255,255,255,0.65);
+  margin-top: 4px; font-weight: 500;
+}
+.day-view-close {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.15);
+  border: none; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px;
+  transition: background .15s; flex-shrink: 0;
+}
+.day-view-close:hover { background: rgba(255,255,255,0.3); }
+
+.day-view-tabs {
+  display: flex; gap: 0;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.day-view-tab {
+  flex: 1; padding: 11px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px; font-weight: 700;
+  text-align: center; cursor: pointer;
+  color: var(--text3);
+  border-bottom: 2px solid transparent;
+  transition: all .15s; border: none; background: none;
+}
+.day-view-tab.active { color: var(--teal); border-bottom: 2px solid var(--teal); background: var(--surface); }
+.day-view-tab:hover:not(.active) { color: var(--text); background: var(--teal-xl); }
+
+.day-view-body { padding: 22px 24px; }
+
+.day-event-card {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: box-shadow .15s;
+}
+.day-event-card:hover { box-shadow: var(--shadow-md); }
+.day-event-card-header {
+  padding: 14px 18px 10px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.day-event-type-icon {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0;
+}
+.day-event-title { font-family: 'Montserrat',sans-serif; font-size: 14px; font-weight: 800; color: var(--teal-d); }
+.day-event-meta { font-size: 11.5px; color: var(--text3); margin-top: 2px; }
+.day-event-body { padding: 14px 18px; }
+
+.agence-visit-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  transition: background .12s;
+}
+.agence-visit-row:hover { background: var(--teal-xl); }
+.agence-visit-num {
+  width: 26px; height: 26px;
+  background: var(--teal-xl); color: var(--teal);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px; font-weight: 800; flex-shrink: 0;
+}
+.agence-visit-name { flex: 1; font-weight: 700; font-size: 13px; }
+.agence-visit-addr { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+.day-empty {
+  text-align: center; padding: 48px 20px;
+  color: var(--text3);
+}
+.day-empty-icon { font-size: 48px; margin-bottom: 12px; }
+.day-empty-title { font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 6px; color: var(--text2); }
+.day-empty-sub { font-size: 13px; }
+
+</style>
+
+
+</head>
+<body>
+
+<!-- ==================== SIDEBAR ==================== -->
+<aside class="sidebar">
+  <div class="sidebar-logo" style="padding:14px 16px 12px; border-bottom:1px solid rgba(255,255,255,0.1);">
+    <div style="background:white; border-radius:10px; padding:8px 12px; display:inline-block; width:100%;">
+      <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAkACQAAD/4QD2RXhpZgAATU0AKgAAAAgABwEOAAIAAAALAAAAYgESAAMAAAABAAEAAAEaAAUAAAABAAAAbgEbAAUAAAABAAAAdgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAfodpAAQAAAABAAAAkgAAAABTY3JlZW5zaG90AAAAAACQAAAAAQAAAJAAAAABMjAyNjowNToyNiAyMToxNzo1MgAABJADAAIAAAAUAAAAyJKGAAcAAAASAAAA3KACAAQAAAABAAACCqADAAQAAAABAAAAtAAAAAAyMDI2OjA1OjI2IDIxOjE3OjUyAEFTQ0lJAAAAU2NyZWVuc2hvdP/tADhQaG90b3Nob3AgMy4wADhCSU0EBAAAAAAAADhCSU0EJQAAAAAAENQdjNmPALIE6YAJmOz4Qn7/4gIoSUNDX1BST0ZJTEUAAQEAAAIYYXBwbAQAAABtbnRyUkdCIFhZWiAH5gABAAEAAAAAAABhY3NwQVBQTAAAAABBUFBMAAAAAAAAAAAAAAAAAAAAAAAA9tYAAQAAAADTLWFwcGwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAApkZXNjAAAA/AAAADBjcHJ0AAABLAAAAFB3dHB0AAABfAAAABRyWFlaAAABkAAAABRnWFlaAAABpAAAABRiWFlaAAABuAAAABRyVFJDAAABzAAAACBjaGFkAAAB7AAAACxiVFJDAAABzAAAACBnVFJDAAABzAAAACBtbHVjAAAAAAAAAAEAAAAMZW5VUwAAABQAAAAcAEQAaQBzAHAAbABhAHkAIABQADNtbHVjAAAAAAAAAAEAAAAMZW5VUwAAADQAAAAcAEMAbwBwAHkAcgBpAGcAaAB0ACAAQQBwAHAAbABlACAASQBuAGMALgAsACAAMgAwADIAMlhZWiAAAAAAAAD21QABAAAAANMsWFlaIAAAAAAAAIPfAAA9v////7tYWVogAAAAAAAASr8AALE3AAAKuVhZWiAAAAAAAAAoOAAAEQsAAMi5cGFyYQAAAAAAAwAAAAJmZgAA8qcAAA1ZAAAT0AAACltzZjMyAAAAAAABDEIAAAXe///zJgAAB5MAAP2Q///7ov///aMAAAPcAADAbv/AABEIALQCCgMBIgACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgv/xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgjQrHBFVLR8CQzYnKCCQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4eLj5OXm5+jp6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgv/xAC1EQACAQIEBAMEBwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIygQgUQpGhscEJIzNS8BVictEKFiQ04SXxFxgZGiYnKCkqNTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqCg4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2dri4+Tl5ufo6ery8/T19vf4+fr/2wBDAAICAgICAgMCAgMFAwMDBQYFBQUFBggGBgYGBggKCAgICAgICgoKCgoKCgoMDAwMDAwODg4ODg8PDw8PDw8PDw//2wBDAQICAgQEBAcEBAcQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/3QAEACH/2gAMAwEAAhEDEQA/AP38ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD/9D9/KKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//R/fyiiigAooooAKKKKACiiigAooooAKKTIzjNLQAUUUUAFFFFABRR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hH4L1mDxD4W8LWWm6lbBhHPFHh03qUbBz3UkGvWa4cTWU5XirHVQpuEbNhRRRXObhRRRQB//0P38ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD/9H9/KKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//S/fyiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/2Q==" alt="Kalifrance" style="width:100%; max-width:180px; height:auto; display:block; object-fit:contain;">
+    </div>
+    <div style="font-size:9px;color:rgba(255,255,255,0.4);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-top:6px;text-align:center;">CRM Déménagement</div>
+  </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-group-label">Tableaux de bord</div>
+    <button class="nav-item active" onclick="showPage('db-agences')">
+      <span class="nav-icon">🏢</span> Dashboard Agences
+    </button>
+
+    <div class="nav-group-label">Gestion</div>
+    <button class="nav-item" onclick="showPage('agenda')">
+      <span class="nav-icon">📅</span> Agenda
+    </button>
+    <button class="nav-item" onclick="showPage('agences')">
+      <span class="nav-icon">📋</span> Agences prospects
+    </button>
+    <button class="nav-item" onclick="showPage('db-agences')">
+      <span class="nav-icon">🤝</span> Agences partenaires
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-footer-av">K</div>
+    <div class="sidebar-footer-info">
+      <div class="name">Équipe Kalifrance</div>
+      <div class="role">Pôle commercial</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ==================== MAIN ==================== -->
+<main class="main">
+
+<!-- === DASHBOARD AGENCES === -->
+<div id="page-db-agences" class="page active">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div><div class="topbar-title">Vue générale</div><div class="topbar-sub">Prospection &amp; partenaires</div></div>
+    </div>
+    <div class="topbar-right" style="display:flex;align-items:center;gap:12px;">
+      <span id="sync-status" style="font-size:11.5px;font-weight:600;color:var(--teal);opacity:0;transition:opacity .3s;"></span>
+    </div>
+  </div>
+  <div class="content">
+    <div class="section-head">📊 Vue globale prospection</div>
+    <div class="stats-row g4">
+      <!-- 1. Agences prospectées -->
+      <div class="stat-card teal"><div class="stripe"></div><div class="stat-icon">🏢</div><div class="stat-label">Agences prospectées</div><div class="stat-value" id="dba-total">0</div><div class="stat-sub">total dans le CRM</div></div>
+      <!-- 2. Agences partenaires (contrat signé) -->
+      <div class="stat-card green"><div class="stripe"></div><div class="stat-icon">🤝</div><div class="stat-label">Agences partenaires</div><div class="stat-value" id="dba-signes">0</div><div class="stat-sub" id="dba-signes-pct">0% du total</div></div>
+      <!-- 3. Contrat en attente -->
+      <div class="stat-card violet"><div class="stripe"></div><div class="stat-icon">📝</div><div class="stat-label">Contrat en attente</div><div class="stat-value" id="dba-contrat">0</div><div class="stat-sub">à finaliser</div></div>
+      <!-- 4. Bonne réception du mail -->
+      <div class="stat-card sky"><div class="stripe"></div><div class="stat-icon">📬</div><div class="stat-label">Bonne réception</div><div class="stat-value" id="dba-bonrec">0</div><div class="stat-sub">mail bien reçu</div></div>
+    </div>
+    <div class="stats-row g3">
+      <!-- 5. Mail en attente -->
+      <div class="stat-card orange"><div class="stripe"></div><div class="stat-icon">📧</div><div class="stat-label">Mail en attente</div><div class="stat-value" id="dba-mail">0</div><div class="stat-sub">en attente de réponse</div></div>
+      <!-- 6. À relancer -->
+      <div class="stat-card amber"><div class="stripe"></div><div class="stat-icon">🔄</div><div class="stat-label">À relancer</div><div class="stat-value" id="dba-revoir">0</div><div class="stat-sub">statut "Revoir"</div></div>
+      <!-- 7. Pas intéressées -->
+      <div class="stat-card rose"><div class="stripe"></div><div class="stat-icon">❌</div><div class="stat-label">Pas intéressées</div><div class="stat-value" id="dba-nonint">0</div><div class="stat-sub" id="dba-nonint-pct">0% du total</div></div>
+    </div>
+    <!-- CAMEMBERT -->
+    <div class="panel" style="margin-bottom:22px;">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-title-icon">🥧</span> Répartition par statut</div>
+      </div>
+      <div style="padding:24px;display:flex;align-items:center;gap:40px;flex-wrap:wrap;">
+        <div style="position:relative;flex-shrink:0;">
+          <canvas id="pieChart" width="200" height="200"></canvas>
+          <div id="pieCenter" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;">
+            <div id="pieCenterVal" style="font-family:'Montserrat',sans-serif;font-size:26px;font-weight:900;color:var(--teal-d);line-height:1;">0</div>
+            <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.6px;">Total</div>
+          </div>
+        </div>
+        <div id="pieLegend" style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-title-icon">🏢</span> Toutes les agences prospects</div>
+        <button class="btn btn-secondary btn-sm" onclick="showPage('agences')">Gérer →</button>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Agence</th><th>Contact</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody id="dba-table"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- === AGENCES === -->
+<div id="page-agences" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><div><div class="topbar-title">Agences Prospects</div><div class="topbar-sub">Suivi de la prospection</div></div></div>
+    <div class="topbar-right"><button class="btn btn-primary" onclick="openModal('modal-agence')">+ Ajouter agence</button></div>
+  </div>
+  <div class="content">
+    <div class="filter-bar">
+      <input type="text" id="search-agences" placeholder="🔍  Rechercher une agence..." 
+  oninput="renderAgences();updateSearchSuggestions('search-agences','datalist-agences')" 
+  list="datalist-agences" autocomplete="off">
+<datalist id="datalist-agences"></datalist>
+      <select id="filter-statut-agence" onchange="renderAgences()">
+        <option value="">Tous les statuts</option>
+        <option>Prospect</option><option>Partenaire</option><option>Pas intéressé</option>
+        <option>Revoir</option><option>Mail en attente</option><option>Bonne réception du mail</option>
+        <option>Contrat en attente</option><option>Contrat signé</option><option>Inactif</option>
+      </select>
+    </div>
+    <div class="panel">
+      <div class="table-wrap">
+        <table><thead><tr><th>Agence</th><th>Contact</th><th>Téléphone</th><th>Statut</th><th>Commentaire</th><th>Relancer dans</th><th>Actions</th></tr></thead>
+        <tbody id="agences-table"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- === AGENDA === -->
+<div id="page-agenda" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><div><div class="topbar-title">Agenda</div><div class="topbar-sub">Tournées, relances et rendez-vous</div></div></div>
+    <div class="topbar-right">
+      <button class="btn btn-primary btn-sm" onclick="openModal('modal-visite')">🏢 Planifier tournée</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="cal-header">
+      <div class="cal-nav">
+        <button class="btn btn-secondary btn-sm" onclick="changeMonth(-1)">← Préc.</button>
+        <span class="cal-month-label" id="month-label"></span>
+        <button class="btn btn-secondary btn-sm" onclick="changeMonth(1)">Suiv. →</button>
+      </div>
+      <div class="cal-legend">
+        <span class="badge badge-teal">● Prospection</span>
+        <span class="badge badge-amber">● Relance</span>
+        <span class="badge badge-pink">● RDV</span>
+      </div>
+    </div>
+    <div class="cal-days-header">
+      <div class="cal-day-label">Lun</div><div class="cal-day-label">Mar</div><div class="cal-day-label">Mer</div>
+      <div class="cal-day-label">Jeu</div><div class="cal-day-label">Ven</div><div class="cal-day-label">Sam</div><div class="cal-day-label">Dim</div>
+    </div>
+    <div class="cal-grid" id="calendar-grid"></div>
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><span class="panel-title-icon">📋</span> Prochains événements</div>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Date</th><th>Type</th><th>Titre</th><th>Détails</th><th>Actions</th></tr></thead>
+        <tbody id="events-table"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- MODAL AGENCE -->
+<div class="modal-overlay" id="modal-agence">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="modal-agence-title">Nouvelle agence</div><button class="modal-close" onclick="closeModal('modal-agence')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="agence-edit-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nom de l'agence *</label><input class="form-control" id="agence-nom" placeholder="Ex: Century 21 Lyon"></div>
+        <div class="form-group"><label class="form-label">Réseau</label><input class="form-control" id="agence-reseau" placeholder="Ex: Century 21, Orpi..."></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nom du contact</label><input class="form-control" id="agence-contact" placeholder="Prénom Nom"></div>
+        <div class="form-group"><label class="form-label">Téléphone</label><input class="form-control" id="agence-tel" placeholder="06 XX XX XX XX"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Email</label><input class="form-control" id="agence-email" placeholder="contact@agence.fr"></div>
+        <div class="form-group"><label class="form-label">Statut</label>
+          <select class="form-control" id="agence-statut">
+            <option>Prospect</option><option>Partenaire</option><option>Pas intéressé</option>
+            <option>Revoir</option><option>Mail en attente</option><option>Bonne réception du mail</option>
+            <option>Contrat en attente</option><option>Contrat signé</option><option>Inactif</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Adresse</label><input class="form-control" id="agence-adresse" placeholder="Ex: 12 rue de la Paix, 75001 Paris"></div>
+      <div class="form-group"><label class="form-label">Commentaire / Notes</label><textarea class="form-control" id="agence-commentaire" placeholder="Notes sur cette agence..."></textarea></div>
+      <div class="divider"></div>
+      <div class="form-label" style="margin-bottom:8px;">🔄 Planifier une relance dans</div>
+      <div class="report-opts" id="agence-relance-options">
+        <div class="ropt" onclick="selectRelanceOpt(this,'1j')">1 jour</div>
+        <div class="ropt" onclick="selectRelanceOpt(this,'2j')">2 jours</div>
+        <div class="ropt" onclick="selectRelanceOpt(this,'3j')">3 jours</div>
+        <div class="ropt" onclick="selectRelanceOpt(this,'1s')">1 semaine</div>
+        <div class="ropt" onclick="selectRelanceOpt(this,'2s')">2 semaines</div>
+        <div class="ropt" onclick="selectRelanceOpt(this,'1m')">1 mois</div>
+        <div class="ropt" onclick="selectRelanceOpt(this,'2m')">2 mois</div>
+        <div class="ropt" onclick="selectRelanceOpt(this,'custom')">📅 Date perso</div>
+      </div>
+      <div id="agence-relance-custom" style="display:none;margin-top:10px;">
+        <label class="form-label">Choisir une date précise</label>
+        <input type="date" class="form-control" id="agence-relance-custom-date">
+      </div>
+      <input type="hidden" id="agence-relance-delay">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-agence')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveAgence()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TOURNÉE -->
+<div class="modal-overlay" id="modal-visite">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div class="modal-title" id="modal-visite-title">🏢 Planifier une tournée</div><button class="modal-close" onclick="closeModal('modal-visite')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="visite-date">
+
+      <!-- AGENCES -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;margin-top:6px;">
+        <div class="form-label" style="margin:0;display:flex;align-items:center;gap:6px;">🏢 Agences à visiter <span style="color:var(--text3);font-weight:400;text-transform:none;font-family:'Open Sans';">— jusqu'à 20</span></div>
+        <button class="btn btn-secondary btn-sm" onclick="addVisiteRow()">+ Agence</button>
+      </div>
+      <div id="visite-agences-list"></div>
+      <button class="btn btn-ghost btn-sm" onclick="addVisiteRow()" style="margin-top:4px;width:100%;margin-bottom:16px;">+ Ajouter une autre agence</button>
+
+      <div class="divider"></div>
+
+      <!-- RELANCES -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div class="form-label" style="margin:0;display:flex;align-items:center;gap:6px;">📞 Relances du jour</div>
+        <button class="btn btn-secondary btn-sm" onclick="addRelanceRow()">+ Relance</button>
+      </div>
+      <div id="visite-relances-list"></div>
+
+      <div class="divider"></div>
+
+      <!-- RDV -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div class="form-label" style="margin:0;display:flex;align-items:center;gap:6px;">🤝 RDV clients</div>
+        <button class="btn btn-secondary btn-sm" onclick="addRdvRow()">+ RDV</button>
+      </div>
+      <div id="visite-rdv-list"></div>
+
+      <div class="divider"></div>
+
+      <div class="form-group" style="margin-top:4px;"><label class="form-label">Notes générales</label><textarea class="form-control" id="visite-notes" placeholder="Notes pour cette journée..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-visite')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveTournee()">💾 Enregistrer la tournée</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RELANCE -->
+<div class="modal-overlay" id="modal-relance">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">📞 Ajouter une relance</div><button class="modal-close" onclick="closeModal('modal-relance')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="relance-edit-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Agence *</label><select class="form-control" id="relance-agence"><option value="">-- Sélectionner --</option></select></div>
+        <div class="form-group"><label class="form-label">Numéro de relance</label>
+          <select class="form-control" id="relance-num">
+            <option value="1">Relance n°1</option><option value="2">Relance n°2</option>
+            <option value="3">Relance n°3</option><option value="4">Relance n°4</option>
+            <option value="5">Relance n°5</option><option value="6">Relance n°6</option>
+            <option value="7">Relance n°7</option><option value="8">Relance n°8</option>
+            <option value="9">Relance n°9</option><option value="10">Relance n°10</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Date *</label><input class="form-control" type="date" id="relance-date"></div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="relance-notes" placeholder="Ex: rappeler concernant le contrat..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-relance')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveRelance()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RDV -->
+<div class="modal-overlay" id="modal-rdv">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">🤝 Ajouter un RDV client</div><button class="modal-close" onclick="closeModal('modal-rdv')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="rdv-edit-id">
+      <div class="form-group"><label class="form-label">Titre *</label><input class="form-control" id="rdv-titre" placeholder="Ex: RDV devis Dupont"></div>
+      <div class="form-group"><label class="form-label">Date *</label><input class="form-control" type="date" id="rdv-date"></div>
+      <div class="form-group"><label class="form-label">Agence liée</label><select class="form-control" id="rdv-agence"><option value="">-- Aucune --</option></select></div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" id="rdv-notes" placeholder="Détails du RDV..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-rdv')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveRdv()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BILAN -->
+<div class="modal-overlay" id="modal-bilan">
+  <div class="modal modal-lg">
+    <div class="modal-header"><div class="modal-title" id="bilan-title">✅ Bilan de journée</div><button class="modal-close" onclick="closeModal('modal-bilan')">✕</button></div>
+    <div class="modal-body" id="bilan-content"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-bilan')">Fermer</button>
+      <button class="btn btn-pink" onclick="saveBilan()">💾 Enregistrer le bilan</button>
+    </div>
+  </div>
+</div>
+
+<!-- DAY VIEW MODAL -->
+<div class="day-view-overlay" id="day-view-overlay" onclick="closeDayView(event)">
+  <div class="day-view" id="day-view-panel">
+    <div class="day-view-header">
+      <div class="day-view-hero">
+        <div>
+          <div class="day-view-date" id="day-view-date-label"></div>
+          <div class="day-view-sub" id="day-view-sub-label"></div>
+        </div>
+        <button class="day-view-close" onclick="document.getElementById('day-view-overlay').classList.remove('open')">✕</button>
+      </div>
+      <div class="day-view-tabs" id="day-view-tabs"></div>
+    </div>
+    <div class="day-view-body" id="day-view-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+
+
+<script>
+
+// ===== AUTOCOMPLETE SYSTÈME =====
+// Adresses : Photon API (Komoot) — rapide, gratuit, sans clé, basé OpenStreetMap
+// Agences immo : Overpass API (OSM) — vraies agences immo avec adresses réelles
+// + Base interne AGENCES_DB
+
+let addrTimer = null;
+let agenceTimer = null;
+
+// ---- ADRESSES via Photon (très rapide, suggestions précises) ----
+async function fetchAddressSuggestions(query) {
+  if (!query || query.length < 3) return [];
+  try {
+    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=8&lang=fr&bbox=-4.5,41.3,9.5,51.1`;
+    const r = await fetch(url);
+    const data = await r.json();
+    return data.features
+      .filter(f => f.properties)
+      .map(f => {
+        const p = f.properties;
+        const parts = [];
+        if (p.name && p.name !== p.street) parts.push(p.name);
+        if (p.housenumber) parts.push(p.housenumber);
+        if (p.street) parts.push(p.street);
+        if (p.postcode) parts.push(p.postcode);
+        if (p.city || p.town || p.village) parts.push(p.city || p.town || p.village);
+        return parts.filter(Boolean).join(', ');
+      })
+      .filter(s => s.length > 3);
+  } catch(e) {
+    return [];
+  }
+}
+
+// ---- AGENCES IMMOBILIÈRES RÉELLES — Île-de-France complète via Overpass ----
+// Bbox IDF : 48.12,1.44,49.24,3.56
+const IDF_BBOX = '48.12,1.44,49.24,3.56';
+let idfAgencesCache = null;   // cache de toutes les agences IDF
+let idfCacheLoading = false;
+let idfCacheCallbacks = [];
+
+// Précharge toutes les agences IDF en arrière-plan au démarrage
+async function preloadIdfAgences() {
+  if (idfAgencesCache || idfCacheLoading) return;
+  idfCacheLoading = true;
+  try {
+    const q = `[out:json][timeout:25];
+(
+  node["office"="estate_agent"](${IDF_BBOX});
+  way["office"="estate_agent"](${IDF_BBOX});
+  node["shop"="estate_agent"](${IDF_BBOX});
+  way["shop"="estate_agent"](${IDF_BBOX});
+);
+out body 500;`;
+    const r = await fetch('https://overpass-api.de/api/interpreter', {
+      method: 'POST',
+      body: q
+    });
+    const data = await r.json();
+    idfAgencesCache = data.elements
+      .filter(el => el.tags && el.tags.name)
+      .map(el => {
+        const t = el.tags;
+        const num    = t['addr:housenumber'] || '';
+        const street = t['addr:street'] || '';
+        const cp     = t['addr:postcode'] || '';
+        const city   = t['addr:city'] || '';
+        let adresse = '';
+        if (num && street) adresse = num + ' ' + street;
+        else if (street) adresse = street;
+        if (cp && city) adresse += (adresse ? ', ' : '') + cp + ' ' + city;
+        else if (city) adresse += (adresse ? ', ' : '') + city;
+        return {
+          nom: t.name,
+          adresse: adresse.trim(),
+          reseau: t.brand || t.operator || '',
+          phone: t.phone || t['contact:phone'] || t['contact:mobile'] || ''
+        };
+      })
+      .filter(a => a.nom && a.nom.length > 1);
+
+    console.log(`✅ ${idfAgencesCache.length} agences IDF chargées`);
+    // Notify any waiting callbacks
+    idfCacheCallbacks.forEach(cb => cb());
+    idfCacheCallbacks = [];
+  } catch(e) {
+    console.warn('Overpass IDF preload failed:', e);
+    idfAgencesCache = [];
+  } finally {
+    idfCacheLoading = false;
+  }
+}
+
+// Recherche dans le cache IDF
+async function fetchRealAgences(query) {
+  if (!query || query.length < 1) return [];
+  const val = query.toLowerCase().trim();
+
+  // Si cache dispo — recherche instantanée
+  if (idfAgencesCache) {
+    return idfAgencesCache
+      .filter(a => a.nom.toLowerCase().includes(val))
+      .slice(0, 15);
+  }
+
+  // Si pas encore chargé — requête directe pour ce terme
+  try {
+    const q = `[out:json][timeout:10];
+(
+  node["office"="estate_agent"]["name"~"${query}",i](${IDF_BBOX});
+  way["office"="estate_agent"]["name"~"${query}",i](${IDF_BBOX});
+  node["shop"="estate_agent"]["name"~"${query}",i](${IDF_BBOX});
+  way["shop"="estate_agent"]["name"~"${query}",i](${IDF_BBOX});
+);
+out body 15;`;
+    const r = await fetch('https://overpass-api.de/api/interpreter', {
+      method: 'POST', body: q
+    });
+    const data = await r.json();
+    return data.elements
+      .filter(el => el.tags && el.tags.name)
+      .map(el => {
+        const t = el.tags;
+        const num = t['addr:housenumber'] || '';
+        const street = t['addr:street'] || '';
+        const cp = t['addr:postcode'] || '';
+        const city = t['addr:city'] || '';
+        let adresse = '';
+        if (num && street) adresse = num + ' ' + street;
+        else if (street) adresse = street;
+        if (cp && city) adresse += (adresse ? ', ' : '') + cp + ' ' + city;
+        else if (city) adresse += (adresse ? ', ' : '') + city;
+        return {
+          nom: t.name,
+          adresse: adresse.trim(),
+          reseau: t.brand || t.operator || '',
+          phone: t.phone || t['contact:phone'] || ''
+        };
+      })
+      .filter(a => a.nom)
+      .slice(0, 15);
+  } catch(e) {
+    return [];
+  }
+}
+
+function createDropdown(input, suggestions, onSelect) {
+  // Remove existing dropdown
+  removeDropdown(input);
+  if (!suggestions.length) return;
+
+  const rect = input.getBoundingClientRect();
+  const dd = document.createElement('div');
+  dd.className = 'autocomplete-dropdown';
+  dd.id = 'dd-' + input.id;
+  dd.style.cssText = `
+    position: fixed;
+    top: ${rect.bottom + 4}px;
+    left: ${rect.left}px;
+    width: ${rect.width}px;
+    background: var(--surface);
+    border: 1.5px solid var(--teal);
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(26,47,64,0.18);
+    z-index: 9999;
+    overflow: hidden;
+    max-height: 260px;
+    overflow-y: auto;
+  `;
+
+  suggestions.forEach((s, i) => {
+    const item = document.createElement('div');
+    item.style.cssText = `
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      font-family: 'Open Sans', sans-serif;
+      display: flex; align-items: center; gap: 8px;
+    `;
+    item.innerHTML = `<span style="color:var(--teal);font-size:14px;">📍</span><span>${s}</span>`;
+    item.addEventListener('mousedown', e => {
+      e.preventDefault();
+      onSelect(s);
+      removeDropdown(input);
+    });
+    item.addEventListener('mouseover', () => item.style.background = 'var(--teal-xl)');
+    item.addEventListener('mouseout', () => item.style.background = '');
+    dd.appendChild(item);
+  });
+
+  document.body.appendChild(dd);
+
+  // Close on outside click
+  setTimeout(() => {
+    document.addEventListener('click', function handler(e) {
+      if (!dd.contains(e.target) && e.target !== input) {
+        removeDropdown(input);
+        document.removeEventListener('click', handler);
+      }
+    });
+  }, 100);
+}
+
+function createAgenceDropdown(input, suggestions, onSelect) {
+  removeDropdown(input);
+  if (!suggestions.length) return;
+
+  const rect = input.getBoundingClientRect();
+  const dd = document.createElement('div');
+  dd.className = 'autocomplete-dropdown';
+  dd.id = 'dd-' + (input.id || Math.random());
+  dd.style.cssText = `
+    position: fixed;
+    top: ${rect.bottom + 4}px;
+    left: ${rect.left}px;
+    width: ${Math.max(rect.width, 280)}px;
+    background: var(--surface);
+    border: 1.5px solid var(--teal);
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(26,47,64,0.18);
+    z-index: 9999;
+    overflow: hidden;
+    max-height: 280px;
+    overflow-y: auto;
+  `;
+
+  suggestions.forEach(s => {
+    const item = document.createElement('div');
+    item.style.cssText = `
+      padding: 10px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      font-family: 'Open Sans', sans-serif;
+    `;
+    item.innerHTML = `
+      <div style="font-size:13px;font-weight:700;color:var(--teal-d);">🏢 ${s.nom}</div>
+      ${s.reseau ? `<div style="font-size:11px;color:var(--text3);">${s.reseau}</div>` : ''}
+      ${s.adresse ? `<div style="font-size:11px;color:var(--teal);">📍 ${s.adresse}</div>` : '<div style="font-size:11px;color:var(--text3);">Adresse non disponible</div>'}
+    `;
+    item.addEventListener('mousedown', e => {
+      e.preventDefault();
+      onSelect(s);
+      removeDropdown(input);
+    });
+    item.addEventListener('touchstart', e => {
+      e.preventDefault();
+      onSelect(s);
+      removeDropdown(input);
+    });
+    item.addEventListener('mouseover', () => item.style.background = 'var(--teal-xl)');
+    item.addEventListener('mouseout', () => item.style.background = '');
+    dd.appendChild(item);
+  });
+
+  document.body.appendChild(dd);
+
+  setTimeout(() => {
+    document.addEventListener('click', function handler(e) {
+      if (!dd.contains(e.target) && e.target !== input) {
+        removeDropdown(input);
+        document.removeEventListener('click', handler);
+      }
+    });
+  }, 100);
+}
+
+function removeDropdown(input) {
+  document.querySelectorAll('.autocomplete-dropdown').forEach(d => d.remove());
+}
+
+// ===== BILAN INLINE PAR AGENCE =====
+
+function toggleInlineBilan(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function setInlineStatut(eventId, index, statut) {
+  const ev = state.events.find(e => e.id === eventId);
+  if (!ev) return;
+  if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
+  if (!ev.bilan.statuts) ev.bilan.statuts = {};
+  const key = 'planned_' + index;
+  ev.bilan.statuts[key] = statut;
+  saveState();
+  // Refresh day view to show updated badge + pill selection
+  renderDayTab('visite', ev.date);
+  // Re-open the bilan panel for this row
+  setTimeout(() => {
+    const panel = document.getElementById('inline-bilan-' + eventId + '-' + index);
+    if (panel) panel.style.display = 'block';
+  }, 50);
+}
+
+function setInlineReport(eventId, index, delay, el) {
+  const ev = state.events.find(e => e.id === eventId);
+  if (!ev) return;
+  if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
+  if (!ev.bilan.reports) ev.bilan.reports = {};
+  const key = 'planned_' + index;
+  ev.bilan.reports[key] = delay;
+  saveState();
+  // Update button styles
+  const panel = el.closest('div[id^="inline-bilan"]') || el.parentElement;
+  if (panel) {
+    panel.querySelectorAll('[onclick*="setInlineReport"]').forEach(b => {
+      b.style.borderColor = 'var(--border)';
+      b.style.background = 'var(--surface)';
+      b.style.color = 'var(--text3)';
+    });
+  }
+  el.style.borderColor = 'var(--teal)';
+  el.style.background = 'var(--teal-xl)';
+  el.style.color = 'var(--teal)';
+}
+
+function saveInlineBilan(eventId, index) {
+  const ev = state.events.find(e => e.id === eventId);
+  if (!ev) return;
+  if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
+
+  const key = 'planned_' + index;
+  const statut = ev.bilan.statuts && ev.bilan.statuts[key];
+  if (!statut) {
+    showToast('⚠️ Choisissez un statut d\'abord');
+    return;
+  }
+
+  // Save note
+  const noteEl = document.getElementById('inline-note-' + eventId + '-' + index);
+  if (noteEl) {
+    if (!ev.bilan.notes) ev.bilan.notes = {};
+    ev.bilan.notes[key] = noteEl.value.trim();
+  }
+
+  const note = ev.bilan.notes ? ev.bilan.notes[key] || '' : '';
+  const report = ev.bilan.reports ? ev.bilan.reports[key] || '' : '';
+
+  // Update agence in CRM
+  const agenceNom = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : '';
+  if (agenceNom) {
+    let agence = state.agences.find(a => a.nom.toLowerCase() === agenceNom.toLowerCase());
+    if (agence) {
+      agence.statut = statut;
+      if (note) agence.commentaire = note;
+    } else {
+      const adresse = ev.agencesList[index].adresse || '';
+      state.agences.push({
+        id: Date.now().toString() + Math.random(),
+        nom: agenceNom, adresse, statut,
+        commentaire: note, contact:'', tel:'', email:'', reseau:''
+      });
+    }
+  }
+
+  // Schedule relance if delay selected
+  if (report && statut !== 'Contrat signé') {
+    const agence = state.agences.find(a => a.nom.toLowerCase() === agenceNom.toLowerCase());
+    if (agence) {
+      const n = state.events.filter(e => e.type==='relance' && e.agenceId===agence.id).length + 1;
+      if (report.startsWith('date:')) {
+        // Date personnalisée
+        scheduleRelanceOnDate(agence.id, report.replace('date:',''), n);
+      } else {
+        // Nombre de jours depuis la date du bilan
+        scheduleRelance(agence.id, report, n, ev.date);
+      }
+    }
+  }
+
+  saveState();
+  syncToSupabase();
+  renderDashboardAgences();
+  showToast('✅ ' + agenceNom + ' — ' + statut);
+
+  renderDayTab('visite', ev.date);
+  renderCalendar();
+}
+
+// ===== TOURNÉE ROWS (défini tôt car utilisé dans le HTML) =====
+function addRelanceRow() {
+  const list = document.getElementById('visite-relances-list');
+  if (!list) return;
+  const div = document.createElement('div');
+  div.className = 'agence-row';
+  div.style.marginBottom = '7px';
+  const agencesOptions = state.agences.map(a => `<option value="${a.id}">${a.nom}</option>`).join('');
+  const numOptions = [1,2,3,4,5,6,7,8,9,10].map(n => `<option value="${n}">Relance n°${n}</option>`).join('');
+  div.innerHTML = `
+    <span style="font-size:14px;">📞</span>
+    <select class="v-rel-agence" style="flex:1.5;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:8px 10px;border-radius:var(--radius);font-family:'Open Sans',sans-serif;font-size:12px;outline:none;">
+      <option value="">-- Agence à relancer --</option>
+      ${agencesOptions}
+    </select>
+    <select class="v-rel-num" style="width:130px;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:8px 10px;border-radius:var(--radius);font-family:'Open Sans',sans-serif;font-size:12px;outline:none;">
+      ${numOptions}
+    </select>
+    <input class="v-rel-notes" placeholder="Notes..." style="flex:1;background:transparent;border:none;color:var(--text);font-family:'Open Sans',sans-serif;font-size:12px;outline:none;">
+    <button class="del-row" onclick="this.closest('.agence-row').remove()">✕</button>`;
+  list.appendChild(div);
+}
+
+function addRdvRow() {
+  const list = document.getElementById('visite-rdv-list');
+  if (!list) return;
+  const div = document.createElement('div');
+  div.className = 'agence-row';
+  div.style.marginBottom = '7px';
+  const agencesOptions = state.agences.map(a => `<option value="${a.id}">${a.nom}</option>`).join('');
+  div.innerHTML = `
+    <span style="font-size:14px;">🤝</span>
+    <input class="v-rdv-titre" placeholder="Titre du RDV (ex: RDV devis Dupont)" style="flex:2;background:transparent;border:none;color:var(--text);font-family:'Open Sans',sans-serif;font-size:13px;outline:none;">
+    <select class="v-rdv-agence" style="width:160px;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:8px 10px;border-radius:var(--radius);font-family:'Open Sans',sans-serif;font-size:12px;outline:none;">
+      <option value="">-- Agence liée --</option>
+      ${agencesOptions}
+    </select>
+    <button class="del-row" onclick="this.closest('.agence-row').remove()">✕</button>`;
+  list.appendChild(div);
+}
+
+// Attach address autocomplete to any input
+function attachAddressAutocomplete(input) {
+  if (input._addrAttached) return;
+  input._addrAttached = true;
+
+  input.addEventListener('input', function() {
+    clearTimeout(addrTimer);
+    const val = this.value.trim();
+    if (val.length < 3) { removeDropdown(this); return; }
+    const inp = this;
+    addrTimer = setTimeout(async () => {
+      const suggestions = await fetchAddressSuggestions(val);
+      createDropdown(inp, suggestions, (selected) => {
+        inp.value = selected;
+        inp.style.borderColor = 'var(--teal)';
+        inp.dispatchEvent(new Event('change'));
+        setTimeout(() => inp.style.borderColor = '', 2000);
+      });
+    }, 350);
+  });
+
+  input.addEventListener('blur', () => {
+    setTimeout(() => removeDropdown(input), 200);
+  });
+}
+
+// Attach agency name autocomplete — base interne + vraies agences OSM
+function attachAgenceAutocomplete(input) {
+  if (input._agenceAttached) return;
+  input._agenceAttached = true;
+
+  input.addEventListener('input', function() {
+    const val = this.value.trim();
+    const valLower = val.toLowerCase();
+    if (val.length < 1) { removeDropdown(this); return; }
+    const inp = this;
+    clearTimeout(agenceTimer);
+
+    // 1. Résultats locaux instantanés (base interne + CRM)
+    const allMap = new Map();
+    AGENCES_DB.forEach(a => allMap.set(a.nom.toLowerCase(), a));
+    state.agences.forEach(a => allMap.set(a.nom.toLowerCase(), {
+      nom: a.nom, adresse: a.adresse||'', reseau: a.reseau||''
+    }));
+    const localResults = [...allMap.values()]
+      .filter(a => a.nom.toLowerCase().includes(valLower))
+      .slice(0, 6);
+
+    // 2. Agences IDF depuis cache Overpass (si dispo) ou requête directe
+    agenceTimer = setTimeout(async () => {
+      const realResults = await fetchRealAgences(val);
+
+      // Merge : IDF en priorité, puis local
+      const merged = new Map();
+      localResults.forEach(a => merged.set(a.nom.toLowerCase(), a));
+      realResults.forEach(a => merged.set(a.nom.toLowerCase(), a));
+
+      const final = [...merged.values()]
+        .sort((a,b) => {
+          // Priorité : commence par la valeur tapée
+          const aStarts = a.nom.toLowerCase().startsWith(valLower);
+          const bStarts = b.nom.toLowerCase().startsWith(valLower);
+          if (aStarts && !bStarts) return -1;
+          if (!aStarts && bStarts) return 1;
+          return a.nom.localeCompare(b.nom);
+        })
+        .slice(0, 15);
+
+      if (final.length > 0) {
+        createAgenceDropdown(inp, final, (selected) => onAgenceSelected(inp, selected));
+      } else if (localResults.length > 0) {
+        createAgenceDropdown(inp, localResults, (selected) => onAgenceSelected(inp, selected));
+      }
+    }, val.length >= 2 ? 300 : 0);
+  });
+
+  input.addEventListener('blur', () => {
+    clearTimeout(agenceTimer);
+    setTimeout(() => removeDropdown(input), 200);
+  });
+}
+
+function onAgenceSelected(inp, selected) {
+  inp.value = selected.nom;
+  removeDropdown(inp);
+
+  // Find address input — cherche dans la row parente, sinon dans la modal
+  function findAddrInput(from) {
+    // 1. Même agence-row (tournée)
+    const row = from.closest('.agence-row');
+    if (row) {
+      const a = row.querySelector('.v-addr');
+      if (a) return a;
+    }
+    // 2. Modal body (formulaire agence)
+    const modal = from.closest('.modal-body');
+    if (modal) {
+      const a = modal.querySelector('#agence-adresse');
+      if (a) return a;
+    }
+    // 3. Fallback global
+    return document.getElementById('agence-adresse');
+  }
+
+  const addrInput = findAddrInput(inp);
+
+  if (selected.adresse && addrInput) {
+    addrInput.value = selected.adresse;
+    addrInput.style.borderColor = 'var(--teal)';
+    addrInput.style.background = '#f0fff4';
+    setTimeout(() => {
+      addrInput.style.borderColor = '';
+      addrInput.style.background = '';
+    }, 2500);
+  }
+
+  // Auto-fill réseau
+  if (selected.reseau) {
+    const reseauInput = document.getElementById('agence-reseau');
+    if (reseauInput && !reseauInput.value) reseauInput.value = selected.reseau;
+  }
+
+  // Auto-fill téléphone
+  if (selected.phone) {
+    const telInput = document.getElementById('agence-tel');
+    if (telInput && !telInput.value) telInput.value = selected.phone;
+  }
+
+  showToast('✅ ' + selected.nom + (selected.adresse ? ' — adresse remplie !' : ' sélectionné'));
+}
+
+
+
+// ==================== SUPABASE CONFIG ====================
+const SUPA_URL = "https://ddwakwmzeacrweppyvpr.supabase.co";
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkd2Frd216ZWFjcndlcHB5dnByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTQyNjYsImV4cCI6MjA5NTM5MDI2Nn0.G6arSWeTiLTwvJBSbQcN-Go6H1qhCuoJFHaeMOr3aiQ";
+
+const supa = {
+  async get(table) {
+    const r = await fetch(`${SUPA_URL}/rest/v1/${table}?select=*`, {
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!r.ok) { console.error('GET error', table, await r.text()); return []; }
+    return await r.json();
+  },
+
+  async upsert(table, row) {
+    const r = await fetch(`${SUPA_URL}/rest/v1/${table}`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify(row)
+    });
+    if (!r.ok) console.error('UPSERT error', table, await r.text());
+  },
+
+  async delete(table, id) {
+    const r = await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!r.ok) console.error('DELETE error', table, await r.text());
+  },
+
+  subscribe(table, callback) {
+    // Poll every 4 seconds for real-time sync
+    setInterval(async () => {
+      const rows = await supa.get(table);
+      callback(rows);
+    }, 4000);
+  }
+};
+
+// ==================== SYNC FUNCTIONS ====================
+// Sync queue — évite les appels en parallèle et retry si offline
+let syncPending = false;
+let syncQueue = false;
+
+async function syncToSupabase() {
+  // Si déjà en cours, on marque qu'une sync est en attente
+  if (syncPending) { syncQueue = true; return; }
+  syncPending = true;
+
+  try {
+    showSyncStatus('🔄 Sync...');
+
+    // Batch upsert agences
+    for (const a of state.agences) {
+      await supa.upsert('agences', { id: a.id, data: a, updated_at: new Date().toISOString() });
+    }
+    // Batch upsert events
+    for (const e of state.events) {
+      await supa.upsert('events', { id: e.id, data: e, updated_at: new Date().toISOString() });
+    }
+
+    showSyncStatus('✅ Synchronisé');
+    setTimeout(() => showSyncStatus(''), 2000);
+
+  } catch(err) {
+    // Silently fail — retry in 5s
+    showSyncStatus('📴 Hors ligne');
+    setTimeout(() => { showSyncStatus(''); }, 3000);
+    // Retry after 5s
+    setTimeout(() => syncToSupabase(), 5000);
+  } finally {
+    syncPending = false;
+    if (syncQueue) {
+      syncQueue = false;
+      setTimeout(() => syncToSupabase(), 300);
+    }
+  }
+}
+
+async function loadFromSupabase() {
+  try {
+    showSyncStatus('🔄 Chargement...');
+    const [agencesRows, eventsRows] = await Promise.all([
+      supa.get('agences'),
+      supa.get('events')
+    ]);
+    if (agencesRows.length > 0 || eventsRows.length > 0) {
+      state.agences = agencesRows.map(r => r.data);
+      state.events  = eventsRows.map(r => r.data);
+      saveState();
+    }
+    showSyncStatus('✅ Synchronisé');
+    setTimeout(() => showSyncStatus(''), 2000);
+  } catch(err) {
+    console.error('Load error:', err);
+    showSyncStatus('⚠️ Hors ligne');
+  }
+}
+
+async function deleteFromSupabase(table, id) {
+  await supa.delete(table, id);
+}
+
+function showSyncStatus(msg) {
+  let el = document.getElementById('sync-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.opacity = msg ? '1' : '0';
+}
+
+// Auto-refresh every 5s — silencieux si offline
+let isOnline = true;
+setInterval(async () => {
+  try {
+    const [agencesRows, eventsRows] = await Promise.all([
+      supa.get('agences'),
+      supa.get('events')
+    ]);
+    if (!isOnline) {
+      isOnline = true;
+      showSyncStatus('✅ Reconnecté');
+      setTimeout(() => showSyncStatus(''), 2000);
+    }
+    const newAgences = agencesRows.map(r => r.data);
+    const newEvents  = eventsRows.map(r => r.data);
+    if (JSON.stringify(newAgences) !== JSON.stringify(state.agences) ||
+        JSON.stringify(newEvents)  !== JSON.stringify(state.events)) {
+      state.agences = newAgences;
+      state.events  = newEvents;
+      saveState();
+      const activePage = document.querySelector('.page.active');
+      if (activePage) {
+        const pageId = activePage.id.replace('page-', '');
+        const r = {'db-agences':renderDashboardAgences,'agences':renderAgences,'agenda':renderCalendar};
+        if (r[pageId]) r[pageId]();
+      }
+      showSyncStatus('🔄 Mis à jour');
+      setTimeout(() => showSyncStatus(''), 1500);
+    }
+  } catch(e) {
+    // Silencieux — pas de console.error, juste indicateur discret
+    if (isOnline) {
+      isOnline = false;
+      showSyncStatus('📴 Hors ligne');
+      setTimeout(() => showSyncStatus(''), 3000);
+    }
+  }
+}, 5000);
+
+
+
+const AGENCES_DB = [
+  // ORPI
+  {nom:"Orpi", reseau:"Orpi"}, {nom:"Orpi Paris 1", reseau:"Orpi", adresse:"1 Rue de Rivoli, 75001 Paris"},
+  {nom:"Orpi Paris 2", reseau:"Orpi", adresse:"12 Rue Montorgueil, 75002 Paris"},
+  {nom:"Orpi Cergy", reseau:"Orpi", adresse:"3 Rue des Colonnes, 95000 Cergy"},
+  {nom:"Orpi Pontoise", reseau:"Orpi", adresse:"8 Rue de la République, 95300 Pontoise"},
+  {nom:"Orpi Sarcelles", reseau:"Orpi", adresse:"7 All. du Meunier, 95200 Sarcelles"},
+  {nom:"Orpi Enghien", reseau:"Orpi", adresse:"12 Rue du Général de Gaulle, 95880 Enghien-les-Bains"},
+  {nom:"Orpi Argenteuil", reseau:"Orpi", adresse:"5 Rue Pierre Guienne, 95100 Argenteuil"},
+  {nom:"Orpi Saint-Denis", reseau:"Orpi", adresse:"10 Rue de la République, 93200 Saint-Denis"},
+  {nom:"Orpi Bobigny", reseau:"Orpi", adresse:"4 Av. Salvador Allende, 93000 Bobigny"},
+  {nom:"Orpi Vincennes", reseau:"Orpi", adresse:"22 Rue de Fontenay, 94300 Vincennes"},
+  // CENTURY 21
+  {nom:"Century 21", reseau:"Century 21"},
+  {nom:"Century 21 Paris 8", reseau:"Century 21", adresse:"45 Av. de Wagram, 75008 Paris"},
+  {nom:"Century 21 Paris 15", reseau:"Century 21", adresse:"138 Rue Saint-Charles, 75015 Paris"},
+  {nom:"Century 21 Cergy", reseau:"Century 21", adresse:"1 All. de l'Arche, 95000 Cergy"},
+  {nom:"Century 21 Villiers-le-Bel", reseau:"Century 21", adresse:"2 Rue de Paris, 95400 Villiers-le-Bel"},
+  {nom:"Century 21 Gonesse", reseau:"Century 21", adresse:"5 Av. Emile Zola, 95500 Gonesse"},
+  {nom:"Century 21 Argenteuil", reseau:"Century 21", adresse:"18 Rue Verte, 95100 Argenteuil"},
+  {nom:"Century 21 Saint-Denis", reseau:"Century 21", adresse:"7 Rue de la Légion d'Honneur, 93200 Saint-Denis"},
+  {nom:"Century 21 Nanterre", reseau:"Century 21", adresse:"44 Av. Georges Clemenceau, 92000 Nanterre"},
+  // LAFORET
+  {nom:"Laforêt", reseau:"Laforêt"},
+  {nom:"Laforêt Paris 11", reseau:"Laforêt", adresse:"87 Bd Voltaire, 75011 Paris"},
+  {nom:"Laforêt Paris 13", reseau:"Laforêt", adresse:"196 Av. de Choisy, 75013 Paris"},
+  {nom:"Laforêt Pontoise", reseau:"Laforêt", adresse:"5 Rue Thiers, 95300 Pontoise"},
+  {nom:"Laforêt Cergy", reseau:"Laforêt", adresse:"2 Pl. des Colonnes, 95000 Cergy"},
+  {nom:"Laforêt Sarcelles", reseau:"Laforêt", adresse:"1 Av. Paul Valéry, 95200 Sarcelles"},
+  {nom:"Laforêt Enghien", reseau:"Laforêt", adresse:"17 Bd d'Ormesson, 95880 Enghien-les-Bains"},
+  {nom:"Laforêt Vincennes", reseau:"Laforêt", adresse:"1 Av. de Paris, 94300 Vincennes"},
+  // GUY HOQUET
+  {nom:"Guy Hoquet", reseau:"Guy Hoquet"},
+  {nom:"Guy Hoquet Paris 9", reseau:"Guy Hoquet", adresse:"55 Rue de Clichy, 75009 Paris"},
+  {nom:"Guy Hoquet Cergy", reseau:"Guy Hoquet", adresse:"3 Bd de l'Oise, 95000 Cergy"},
+  {nom:"Guy Hoquet Pontoise", reseau:"Guy Hoquet", adresse:"12 Rue Thiers, 95300 Pontoise"},
+  {nom:"Guy Hoquet Sarcelles", reseau:"Guy Hoquet", adresse:"15 Av. Paul Valéry, 95200 Sarcelles"},
+  {nom:"Guy Hoquet Argenteuil", reseau:"Guy Hoquet", adresse:"21 Bd Karl Marx, 95100 Argenteuil"},
+  {nom:"Guy Hoquet Bobigny", reseau:"Guy Hoquet", adresse:"2 Av. du Président Wilson, 93000 Bobigny"},
+  // ERA
+  {nom:"ERA Immobilier", reseau:"ERA"},
+  {nom:"ERA Paris 16", reseau:"ERA", adresse:"22 Av. du Parc, 75016 Paris"},
+  {nom:"ERA Cergy", reseau:"ERA", adresse:"8 All. de l'Arche, 95000 Cergy"},
+  {nom:"ERA Enghien", reseau:"ERA", adresse:"5 Rue du Général Leclerc, 95880 Enghien-les-Bains"},
+  {nom:"ERA Montmorency", reseau:"ERA", adresse:"3 Rue de la République, 95160 Montmorency"},
+  // FONCIA
+  {nom:"Foncia", reseau:"Foncia"},
+  {nom:"Foncia Paris 1", reseau:"Foncia", adresse:"8 Pl. du Châtelet, 75001 Paris"},
+  {nom:"Foncia Paris 17", reseau:"Foncia", adresse:"95 Av. de Villiers, 75017 Paris"},
+  {nom:"Foncia Cergy", reseau:"Foncia", adresse:"4 All. des Erables, 95000 Cergy"},
+  {nom:"Foncia Pontoise", reseau:"Foncia", adresse:"6 Rue de la République, 95300 Pontoise"},
+  {nom:"Foncia Argenteuil", reseau:"Foncia", adresse:"3 Bd Héloïse, 95100 Argenteuil"},
+  {nom:"Foncia Sarcelles", reseau:"Foncia", adresse:"22 Av. Paul Valéry, 95200 Sarcelles"},
+  {nom:"Foncia Saint-Denis", reseau:"Foncia", adresse:"12 Rue de la République, 93200 Saint-Denis"},
+  // NEXITY
+  {nom:"Nexity", reseau:"Nexity"},
+  {nom:"Nexity Paris 2", reseau:"Nexity", adresse:"19 Rue du Quatre Septembre, 75002 Paris"},
+  {nom:"Nexity Cergy", reseau:"Nexity", adresse:"5 Pl. de l'Hôtel de Ville, 95000 Cergy"},
+  {nom:"Nexity Pontoise", reseau:"Nexity", adresse:"10 Rue Victor Hugo, 95300 Pontoise"},
+  {nom:"Nexity Saint-Denis", reseau:"Nexity", adresse:"15 Pl. Victor Hugo, 93200 Saint-Denis"},
+  // SQUARE HABITAT
+  {nom:"Square Habitat", reseau:"Square Habitat"},
+  {nom:"Square Habitat Paris 11", reseau:"Square Habitat", adresse:"62 Av. de la République, 75011 Paris"},
+  {nom:"Square Habitat Cergy", reseau:"Square Habitat", adresse:"7 All. de l'Arche, 95000 Cergy"},
+  {nom:"Square Habitat Argenteuil", reseau:"Square Habitat", adresse:"5 Rue Verte, 95100 Argenteuil"},
+  // BNP PARIBAS IMMOBILIER
+  {nom:"BNP Paribas Immobilier", reseau:"BNP Paribas"},
+  {nom:"BNP Paribas Immo Paris 8", reseau:"BNP Paribas", adresse:"20 Av. de l'Opéra, 75001 Paris"},
+  // AGENCES INDEPENDANTES IDF
+  {nom:"Agence du Centre", reseau:"Indépendant"},
+  {nom:"Agence de la Gare", reseau:"Indépendant"},
+  {nom:"Agence de la Mairie", reseau:"Indépendant"},
+  {nom:"Immo Conseil", reseau:"Indépendant"},
+  {nom:"Immo Services", reseau:"Indépendant"},
+  {nom:"Paris Immo", reseau:"Indépendant"},
+  {nom:"Val d'Oise Immo", reseau:"Indépendant"},
+  {nom:"Île-de-France Immobilier", reseau:"Indépendant"},
+  {nom:"Maison & Appartement", reseau:"Indépendant"},
+];
+
+// ===== CONSTANTS =====
+const STATUT_AGENCE_BADGE={
+  'Prospect':'badge-sky','Partenaire':'badge-emerald','Pas intéressé':'badge-rose',
+  'Revoir':'badge-amber','Mail en attente':'badge-orange','Bonne réception du mail':'badge-teal',
+  'Contrat en attente':'badge-violet','Contrat signé':'badge-pink','Inactif':'badge-slate'
+};
+const STATUT_CLIENT_BADGE={
+  'Visite technique':'badge-teal','Devis envoyé':'badge-amber','À relancer':'badge-orange',
+  'Validé':'badge-emerald','En cours':'badge-sky','Terminé':'badge-slate','Annulé':'badge-rose'
+};
+const STATUTS_AGENCE=['Prospect','Partenaire','Pas intéressé','Revoir','Mail en attente','Bonne réception du mail','Contrat en attente','Contrat signé','Inactif'];
+const REPORT_DELAYS={'1j':1,'2j':2,'3j':3,'1s':7,'2s':14,'1m':30,'2m':60};
+const REPORT_LABELS={'1j':'1 jour','2j':'2 jours','3j':'3 jours','1s':'1 semaine','2s':'2 semaines','1m':'1 mois','2m':'2 mois'};
+
+// ===== STATE =====
+let state={agences:[],events:[],currentMonth:new Date().getMonth(),currentYear:new Date().getFullYear()};
+let bilanData={eventId:null,agences:[],newAgences:[],statuts:{},reports:{}};
+
+function loadState(){try{const s=localStorage.getItem('kalifrance-v5');if(s)state={...state,...JSON.parse(s)};}catch(e){}}
+function saveState(){try{localStorage.setItem('kalifrance-v5',JSON.stringify(state));}catch(e){}}
+
+function showPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{if((n.getAttribute('onclick')||'').includes("'"+page+"'"))n.classList.add('active');});
+  const r={'db-agences':renderDashboardAgences,'agences':renderAgences,'agenda':renderCalendar};
+  if(r[page])r[page]();
+}
+
+function openModal(id){
+  updateSelects();
+  document.getElementById(id).classList.add('open');
+  setTimeout(() => {
+    // Agence modal — nom + adresse fields
+    const nomField = document.getElementById('agence-nom');
+    if (nomField) attachAgenceAutocomplete(nomField);
+    const addrField = document.getElementById('agence-adresse');
+    if (addrField) attachAddressAutocomplete(addrField);
+    // Tournée rows
+    document.querySelectorAll('.v-nom').forEach(i => attachAgenceAutocomplete(i));
+    document.querySelectorAll('.v-addr').forEach(i => attachAddressAutocomplete(i));
+    // Relance agence select — no autocomplete needed
+  }, 200);
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');resetForms();}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id);}));
+
+function resetForms(){
+  ['agence-edit-id','agence-nom','agence-reseau','agence-contact','agence-tel','agence-email','agence-adresse','agence-commentaire',
+   'rdv-edit-id','rdv-titre','rdv-notes','rdv-date',
+   'relance-edit-id','relance-notes','relance-date','visite-date','visite-notes','agence-relance-delay'
+  ].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const as=document.getElementById('agence-statut');if(as)as.value='Prospect';
+  const rn=document.getElementById('relance-num');if(rn)rn.value='1';
+  const mat=document.getElementById('modal-agence-title');if(mat)mat.textContent='Nouvelle agence';
+  document.querySelectorAll('.ropt').forEach(o=>o.classList.remove('on'));
+  const vl=document.getElementById('visite-agences-list');
+  if(vl){vl.innerHTML='';for(let i=0;i<3;i++)addVisiteRow();}
+  const rl=document.getElementById('visite-relances-list');
+  if(rl) rl.innerHTML='';
+  const rdvl=document.getElementById('visite-rdv-list');
+  if(rdvl) rdvl.innerHTML='';
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+function selectRelanceOpt(el,val){
+  document.querySelectorAll('#agence-relance-options .ropt').forEach(o=>o.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('agence-relance-delay').value=val;
+  const customDiv = document.getElementById('agence-relance-custom');
+  if(customDiv) customDiv.style.display = val==='custom' ? 'block' : 'none';
+}
+
+function todayStr(){return new Date().toISOString().split('T')[0];}
+function addDays(ds, d) {
+  // Use UTC to avoid timezone shift issues
+  const parts = ds.split('-');
+  const dt = new Date(Date.UTC(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2])));
+  dt.setUTCDate(dt.getUTCDate() + d);
+  const y = dt.getUTCFullYear();
+  const m = String(dt.getUTCMonth()+1).padStart(2,'0');
+  const day = String(dt.getUTCDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+
+function scheduleRelanceOnDate(agenceId, exactDate, num) {
+  const ag = state.agences.find(a => a.id === agenceId);
+  const agNom = ag ? ag.nom : 'Agence';
+  state.events.push({
+    id: Date.now().toString() + Math.random(),
+    type: 'relance',
+    date: exactDate,
+    agenceId,
+    relanceNum: num || 1,
+    titre: agNom + ' — Relance n°' + (num || 1),
+    notes: 'Date personnalisée'
+  });
+  saveState();
+  syncToSupabase();
+}
+
+function setInlineReportCustomDate(eventId, index, dateVal) {
+  if (!dateVal) return;
+  const ev = state.events.find(e => e.id === eventId);
+  if (!ev) return;
+  if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
+  if (!ev.bilan.reports) ev.bilan.reports = {};
+  ev.bilan.reports['planned_' + index] = 'date:' + dateVal;
+  saveState();
+}
+
+function scheduleRelance(agenceId, delay, num, baseDate) {
+  const days = REPORT_DELAYS[delay] || 1;
+  // baseDate = date de l'événement source (bilan, agence...), sinon aujourd'hui
+  const from = baseDate || todayStr();
+  const date = addDays(from, days);
+  const ag = state.agences.find(a => a.id === agenceId);
+  const agNom = ag ? ag.nom : 'Agence inconnue';
+  state.events.push({
+    id: Date.now().toString() + Math.random(),
+    type: 'relance',
+    date,
+    agenceId,
+    relanceNum: num || 1,
+    titre: agNom + ' — Relance n°' + (num || 1),
+    notes: 'Planifiée automatiquement'
+  });
+  saveState();
+  syncToSupabase();
+}
+
+// ===== AGENCES =====
+function saveAgence(){
+  const nom=document.getElementById('agence-nom').value.trim();if(!nom){alert('Nom obligatoire.');return;}
+  const editId=document.getElementById('agence-edit-id').value;
+  const delay=document.getElementById('agence-relance-delay').value;
+  const a={id:editId||Date.now().toString(),nom,reseau:document.getElementById('agence-reseau').value.trim(),contact:document.getElementById('agence-contact').value.trim(),tel:document.getElementById('agence-tel').value.trim(),email:document.getElementById('agence-email').value.trim(),adresse:document.getElementById('agence-adresse').value.trim(),statut:document.getElementById('agence-statut').value,commentaire:document.getElementById('agence-commentaire').value.trim()};
+  if(editId){state.agences=state.agences.map(x=>x.id===editId?a:x);showToast('✅ Agence mise à jour');}
+  else{state.agences.unshift(a);showToast('✅ Agence ajoutée');}
+  if(delay&&!editId){
+    const n=state.events.filter(e=>e.type==='relance'&&e.agenceId===a.id).length+1;
+    if(delay==='custom'){
+      const customDate=document.getElementById('agence-relance-custom-date').value;
+      if(customDate) scheduleRelanceOnDate(a.id,customDate,n);
+    } else {
+      scheduleRelance(a.id,delay,n);
+    }
+  }
+  saveState();closeModal('modal-agence');renderAgences();renderDashboardAgences();updateSelects();
+  syncToSupabase().then(()=>showSyncStatus('✅ Synchronisé')).then(()=>setTimeout(()=>showSyncStatus(''),2000));
+}
+function editAgence(id){
+  const a=state.agences.find(x=>x.id===id);if(!a)return;
+  document.getElementById('agence-edit-id').value=a.id;
+  ['nom','reseau','contact','tel','email','adresse','commentaire'].forEach(f=>{const el=document.getElementById('agence-'+f);if(el)el.value=a[f]||'';});
+  document.getElementById('agence-statut').value=a.statut||'Prospect';
+  document.getElementById('modal-agence-title').textContent='Modifier agence';openModal('modal-agence');
+}
+function deleteAgence(id){
+  if(!confirm('Supprimer cette agence ?'))return;state.agences=state.agences.filter(a=>a.id!==id);
+  saveState();renderAgences();renderDashboardAgences();updateSelects();showToast('🗑️ Agence supprimée');
+}
+function quickRelance(agenceId,delay){
+  const n=state.events.filter(e=>e.type==='relance'&&e.agenceId===agenceId).length+1;
+  scheduleRelance(agenceId,delay,n);
+  renderAgences();renderCalendar();
+  const ag=state.agences.find(a=>a.id===agenceId);
+  showToast('📅 Relance n°'+n+' pour '+(ag?ag.nom:'agence')+' dans '+REPORT_LABELS[delay]);
+}
+function renderAgences(){
+  const search=(document.getElementById('search-agences').value||'').toLowerCase();
+  const fst=document.getElementById('filter-statut-agence').value;
+  const list=state.agences.filter(a=>(!search||(a.nom+' '+(a.contact||'')).toLowerCase().includes(search))&&(!fst||a.statut===fst));
+  const tbody=document.getElementById('agences-table');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:32px">Aucune agence trouvée</td></tr>';return;}
+  tbody.innerHTML=list.map(a=>{
+    const badge=STATUT_AGENCE_BADGE[a.statut]||'badge-slate';
+    const mapsUrl=a.adresse?'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(a.adresse):'';
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:12px;">
+        <div class="avatar" style="background:var(--teal-xl);color:var(--teal);">${a.nom.charAt(0).toUpperCase()}</div>
+        <div><div style="font-weight:700;color:var(--teal-d);">${a.nom}</div><div style="font-size:11px;color:var(--text3);">${a.reseau||'—'}</div>
+        ${a.adresse?`<a class="maps-link" href="${mapsUrl}" target="_blank" style="margin-top:3px;display:inline-flex;">📍 Itinéraire</a>`:''}
+        </div>
+      </div></td>
+      <td>${a.contact||'<span style="color:var(--text3)">—</span>'}</td>
+      <td>${a.tel||'<span style="color:var(--text3)">—</span>'}</td>
+      <td><span class="badge ${badge}">${a.statut}</span></td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text3);font-size:12px;">${a.commentaire||'—'}</td>
+      <td><div class="report-opts" style="margin:0;">${['1j','2j','3j','1s','2s','1m','2m'].map(k=>`<div class="ropt" onclick="quickRelance('${a.id}','${k}')" title="Relancer dans ${REPORT_LABELS[k]}">${REPORT_LABELS[k]}</div>`).join('')}</div></td>
+      <td><div style="display:flex;gap:5px;">
+        <button class="btn btn-secondary btn-xs" onclick="editAgence('${a.id}')">✏️ Modifier</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteAgence('${a.id}')">🗑️</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ===== CLIENTS =====
+
+// ===== TOURNÉE =====
+function addVisiteRow(){
+  const list=document.getElementById('visite-agences-list');const idx=list.children.length+1;
+  const div=document.createElement('div');div.className='agence-row';
+  div.innerHTML=`<span class="agence-row-num">${idx}</span><input placeholder="🏢 Nom agence (suggestions auto)" class="v-nom" style="flex:1.5;" oninput="getAgenceSuggestions(this)"><input placeholder="📍 Adresse (suggestions Google)" class="v-addr" style="flex:2;"><button class="del-row" onclick="removeVisiteRow(this)">✕</button>`;
+  list.appendChild(div);
+  setTimeout(() => {
+    const nom = div.querySelector('.v-nom');
+    const addr = div.querySelector('.v-addr');
+    if (nom) attachAgenceAutocomplete(nom);
+    if (addr) attachAddressAutocomplete(addr);
+  }, 100);
+}
+function removeVisiteRow(btn){
+  btn.closest('.agence-row').remove();
+  document.querySelectorAll('#visite-agences-list .agence-row').forEach((r,i)=>r.querySelector('.agence-row-num').textContent=i+1);
+}
+function saveTournee(){
+  const date=document.getElementById('visite-date').value;if(!date){alert('Date obligatoire.');return;}
+  const agencesList=[];
+  document.querySelectorAll('#visite-agences-list .agence-row').forEach(r=>{const n=r.querySelector('.v-nom').value.trim();const a=r.querySelector('.v-addr').value.trim();if(n)agencesList.push({nom:n,adresse:a});});
+  if(!agencesList.length){alert('Ajoutez au moins une agence.');return;}
+  state.events.push({id:Date.now().toString(),type:'visite',date,titre:'Tournée '+date+' ('+agencesList.length+' agences)',agencesList,notes:document.getElementById('visite-notes').value.trim(),bilan:null});
+  saveState();closeModal('modal-visite');renderCalendar();showToast('✅ Tournée enregistrée — '+agencesList.length+' agences');
+  syncToSupabase();
+}
+
+// ===== RELANCE =====
+function saveRelance(){
+  const agenceId=document.getElementById('relance-agence').value;
+  const date=document.getElementById('relance-date').value;
+  const num=parseInt(document.getElementById('relance-num').value)||1;
+  if(!date){alert('Date obligatoire.');return;}
+  const ag=state.agences.find(a=>a.id===agenceId);
+  const editId=document.getElementById('relance-edit-id').value;
+  const ev={id:editId||Date.now().toString(),type:'relance',date,agenceId,relanceNum:num,titre:(ag?ag.nom:'Relance')+' — Relance n°'+num,notes:document.getElementById('relance-notes').value.trim()};
+  if(editId){state.events=state.events.map(e=>e.id===editId?ev:e);showToast('✅ Relance mise à jour');}
+  else{state.events.push(ev);showToast('✅ Relance n°'+num+' ajoutée');}
+  saveState();closeModal('modal-relance');renderCalendar();syncToSupabase();
+}
+
+// ===== RDV =====
+function saveRdv(){
+  const titre=document.getElementById('rdv-titre').value.trim();const date=document.getElementById('rdv-date').value;
+  if(!titre||!date){alert('Titre et date obligatoires.');return;}
+  const editId=document.getElementById('rdv-edit-id').value;
+  const ev={id:editId||Date.now().toString(),type:'rdv',date,titre,agenceId:document.getElementById('rdv-agence').value,notes:document.getElementById('rdv-notes').value.trim()};
+  if(editId){state.events=state.events.map(e=>e.id===editId?ev:e);showToast('✅ RDV mis à jour');}
+  else{state.events.push(ev);showToast('✅ RDV ajouté');}
+  saveState();closeModal('modal-rdv');renderCalendar();
+}
+function deleteEvent(id){
+  // Find event date before deleting (to refresh day view)
+  const ev = state.events.find(e => e.id === id);
+  const evDate = ev ? ev.date : null;
+  state.events = state.events.filter(e => e.id !== id);
+  saveState();
+  syncToSupabase();
+  renderCalendar();
+  showToast('🗑️ Événement supprimé');
+  // Refresh day view if it's open on the same date
+  const overlay = document.getElementById('day-view-overlay');
+  if (overlay && overlay.classList.contains('open') && evDate) {
+    const remaining = state.events.filter(e => e.date === evDate);
+    if (remaining.length === 0) {
+      // No more events — show empty state
+      renderDayTab('empty', evDate);
+      // Update subtitle
+      const sub = document.getElementById('day-view-sub-label');
+      if (sub) sub.textContent = 'Aucun événement planifié';
+      // Remove tabs
+      const tabs = document.getElementById('day-view-tabs');
+      if (tabs) tabs.innerHTML = '';
+    } else {
+      // Refresh current tab
+      const activeTab = document.querySelector('.day-view-tab.active');
+      if (activeTab) {
+        const type = activeTab.getAttribute('onclick').match(/'([^']+)'/)?.[1] || 'visite';
+        // Check if this type still has events
+        const stillHas = remaining.some(e => e.type === type);
+        if (stillHas) {
+          renderDayTab(type, evDate);
+        } else {
+          // Switch to first available type
+          const firstType = remaining[0].type;
+          renderDayTab(firstType, evDate);
+        }
+      }
+      // Update subtitle
+      const sub = document.getElementById('day-view-sub-label');
+      if (sub) sub.textContent = remaining.length + ' événement' + (remaining.length > 1 ? 's' : '') + ' planifié' + (remaining.length > 1 ? 's' : '');
+    }
+  }
+}
+
+// ===== BILAN =====
+function openBilan(eventId){
+  const ev=state.events.find(e=>e.id===eventId);if(!ev||ev.type!=='visite')return;
+  bilanData={eventId,agences:[...(ev.agencesList||[])],newAgences:[],statuts:{},reports:{},notes:{}};
+  if(ev.bilan){Object.assign(bilanData.statuts,ev.bilan.statuts||{});Object.assign(bilanData.reports,ev.bilan.reports||{});Object.assign(bilanData.notes,ev.bilan.notes||{});}
+  document.getElementById('bilan-title').textContent='✅ Bilan — '+new Date(ev.date+'T00:00:00').toLocaleDateString('fr-FR');
+  renderBilanContent();document.getElementById('modal-bilan').classList.add('open');
+}
+function renderBilanContent(){
+  const cont=document.getElementById('bilan-content');
+  let html='<div class="section-head" style="margin-bottom:14px;">Agences planifiées — Attribuer un résultat</div>';
+  bilanData.agences.forEach((ag,i)=>{
+    const key='planned_'+i;const curStatut=bilanData.statuts[key]||'';const curReport=bilanData.reports[key]||'';
+    const mapsUrl=ag.adresse?'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(ag.adresse):'';
+    const curNote = bilanData.notes && bilanData.notes[key] ? bilanData.notes[key] : '';
+    html+=`<div class="bilan-item">
+      <div class="bilan-item-header">
+        <div class="bilan-item-num">${i+1}</div>
+        <div class="bilan-item-name">${ag.nom}</div>
+        ${ag.adresse?`<a class="maps-link" href="${mapsUrl}" target="_blank">📍 Itinéraire</a>`:''}
+      </div>
+      <div class="status-pills">
+        ${['Prospect','Partenaire','Pas intéressé','Revoir','Mail en attente','Bonne réception du mail','Contrat en attente','Contrat signé'].map(s=>`<span class="sp ${spClass(s)}${curStatut===s?' on':''}" onclick="setBilanStatut('${key}','${s}')">${s}</span>`).join('')}
+      </div>
+      ${curStatut?`
+      <div style="margin-top:10px;">
+        <div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;">Reporter la visite dans</div>
+        <div class="report-opts" style="margin:0;">${['1j','2j','3j','1s','1m'].map(k=>`<div class="ropt${curReport===k?' on':''}" onclick="setBilanReport('${key}','${k}',this)">${REPORT_LABELS[k]}</div>`).join('')}</div>
+      </div>`:''}
+      <div style="margin-top:10px;">
+        <div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;">📝 Note ${curStatut ? '— '+curStatut : ''}</div>
+        <textarea 
+          placeholder="Ex: Préfère ne pas s'engager pour l'instant, rappeler en septembre..."
+          oninput="setBilanNote('${key}', this.value)"
+          style="width:100%;background:var(--surface);border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:var(--radius);font-family:'Open Sans',sans-serif;font-size:12px;outline:none;resize:vertical;min-height:56px;transition:border-color .18s;"
+          onfocus="this.style.borderColor='var(--teal)'"
+          onblur="this.style.borderColor=''"
+        >${curNote}</textarea>
+      </div>
+    </div>`;
+  });
+  html+='<div class="divider"></div><div class="section-head" style="margin-bottom:10px;">Agences visitées non planifiées</div>';
+  bilanData.newAgences.forEach((na,i)=>{
+    html+=`<div class="agence-row" style="margin-bottom:8px;">
+      <span class="agence-row-num">+</span>
+      <input placeholder="Nom agence" value="${na.nom||''}" oninput="bilanData.newAgences[${i}].nom=this.value" style="flex:1.2;">
+      <input placeholder="Adresse" value="${na.adresse||''}" oninput="bilanData.newAgences[${i}].adresse=this.value" style="flex:1.5;">
+      <select style="background:var(--surface);border:1.5px solid var(--border);color:var(--text);border-radius:7px;padding:6px 10px;font-size:12px;font-family:inherit;" onchange="bilanData.newAgences[${i}].statut=this.value">
+        ${STATUTS_AGENCE.map(s=>`<option${na.statut===s?' selected':''}>${s}</option>`).join('')}
+      </select>
+      <button class="del-row" onclick="removeNewBA(${i})">✕</button>
+    </div>`;
+  });
+  html+=`<button class="btn btn-secondary btn-sm" onclick="addNewBA()" style="margin-top:6px;">+ Agence non planifiée</button>`;
+  cont.innerHTML=html;
+  // Attach autocomplete to new agence inputs in bilan
+  setTimeout(() => {
+    document.querySelectorAll('.bilan-nom-input').forEach(i => attachAgenceAutocomplete(i));
+    document.querySelectorAll('.bilan-addr-input').forEach(i => attachAddressAutocomplete(i));
+  }, 100);
+}
+function spClass(s){const m={'Prospect':'sp-prospect','Partenaire':'sp-part','Pas intéressé':'sp-non','Revoir':'sp-revoir','Mail en attente':'sp-mail','Bonne réception du mail':'sp-bonmail','Contrat en attente':'sp-contrat','Contrat signé':'sp-signe'};return m[s]||'sp-prospect';}
+function setBilanStatut(key,statut){bilanData.statuts[key]=statut;renderBilanContent();}
+function setBilanNote(key,val){
+  if(!bilanData.notes) bilanData.notes={};
+  bilanData.notes[key]=val;
+}
+function setBilanReport(key,val,el){bilanData.reports[key]=val;el.closest('.report-opts').querySelectorAll('.ropt').forEach(o=>o.classList.remove('on'));el.classList.add('on');}
+function addNewBA(){bilanData.newAgences.push({nom:'',adresse:'',statut:'Prospect'});renderBilanContent();}
+function removeNewBA(i){bilanData.newAgences.splice(i,1);renderBilanContent();}
+function saveBilan(){
+  const ev=state.events.find(e=>e.id===bilanData.eventId);if(!ev)return;
+  ev.bilan={statuts:bilanData.statuts,reports:bilanData.reports,notes:bilanData.notes||{}};
+  bilanData.agences.forEach((ag,i)=>{
+    const key='planned_'+i;const ns=bilanData.statuts[key];if(!ns)return;
+    const bilanNote = bilanData.notes && bilanData.notes[key] ? bilanData.notes[key] : '';
+    let found=state.agences.find(a=>a.nom.toLowerCase()===ag.nom.toLowerCase());
+    if(found){
+      found.statut=ns;
+      if(bilanNote) found.commentaire = bilanNote;
+    }else{
+      state.agences.push({id:Date.now().toString()+i,nom:ag.nom,adresse:ag.adresse||'',statut:ns,contact:'',tel:'',email:'',reseau:'',commentaire:bilanNote||'Ajoutée via bilan journée'});
+    }
+    const rep=bilanData.reports[key];
+    if(rep&&!ns.includes('signé')){const aid=state.agences.find(a=>a.nom.toLowerCase()===ag.nom.toLowerCase())?.id;if(aid){const n=state.events.filter(e=>e.type==='relance'&&e.agenceId===aid).length+1;scheduleRelance(aid,rep,n);}}
+  });
+  bilanData.newAgences.forEach(na=>{if(!na.nom.trim())return;state.agences.push({id:Date.now().toString()+Math.random(),nom:na.nom.trim(),adresse:na.adresse||'',statut:na.statut||'Prospect',contact:'',tel:'',email:'',reseau:'',commentaire:'Ajoutée via bilan journée'});});
+  saveState();closeModal('modal-bilan');renderCalendar();renderDashboardAgences();renderAgences();showToast('✅ Bilan enregistré !');
+}
+
+// ===== CALENDAR =====
+function changeMonth(d){state.currentMonth+=d;if(state.currentMonth>11){state.currentMonth=0;state.currentYear++;}if(state.currentMonth<0){state.currentMonth=11;state.currentYear--;}renderCalendar();}
+function renderCalendar(){
+  const months=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  document.getElementById('month-label').textContent=`${months[state.currentMonth]} ${state.currentYear}`;
+  const today=new Date();let sd=new Date(state.currentYear,state.currentMonth,1).getDay();sd=sd===0?6:sd-1;
+  const dim=new Date(state.currentYear,state.currentMonth+1,0).getDate();
+  const grid=document.getElementById('calendar-grid');let html='';
+  for(let i=0;i<sd;i++)html+='<div></div>';
+  for(let d=1;d<=dim;d++){
+    const ds=`${state.currentYear}-${String(state.currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT=today.getDate()===d&&today.getMonth()===state.currentMonth&&today.getFullYear()===state.currentYear;
+    const de=state.events.filter(e=>e.date===ds);const hasTournee=de.some(e=>e.type==='visite');
+    html+=`<div class="day-cell ${isT?'today':''} ${de.length?'has-ev':''}" onclick="openDayView('${ds}')">
+      <div class="day-num">${d}${hasTournee?'<span class="day-badge">✓</span>':''}</div>
+      ${de.slice(0,3).map(e=>{
+        if(e.type==='visite')return`<div class="event-chip visite">🏢 ${(e.agencesList||[]).length} agences</div>`;
+        if(e.type==='relance'){
+          const agR=state.agences.find(a=>a.id===e.agenceId);
+          const nomR=agR?agR.nom.substring(0,10):e.titre.substring(0,10);
+          return`<div class="event-chip relance">📞 ${nomR}<span class="relance-badge">n°${e.relanceNum||1}</span></div>`;
+        }
+        return`<div class="event-chip rdv">🤝 ${e.titre.substring(0,13)}</div>`;
+      }).join('')}
+      ${de.length>3?`<div style="font-size:10px;color:var(--text3);margin-top:2px;">+${de.length-3} autres</div>`:''}
+    </div>`;
+  }
+  grid.innerHTML=html;renderEventsList();
+}
+function renderEventsList(){
+  const todayS=new Date().toISOString().split('T')[0];
+  const upcoming=state.events.filter(e=>e.date>=todayS).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,30);
+  const tbody=document.getElementById('events-table');
+  if(!upcoming.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">Aucun événement à venir</td></tr>';return;}
+  tbody.innerHTML=upcoming.map(e=>{
+    const ag=state.agences.find(a=>a.id===e.agenceId);
+    // Rebuild titre dynamically so agence name is always up to date
+    if(e.type==='relance' && ag && !e.titre.startsWith(ag.nom)) {
+      e.titre = ag.nom + ' — Relance n°' + (e.relanceNum||1);
+    }
+    const tl={visite:'🏢 Prospection',relance:'📞 Relance',rdv:'🤝 RDV'}[e.type]||e.type;
+    const tb={visite:'badge-teal',relance:'badge-amber',rdv:'badge-pink'}[e.type]||'badge-slate';
+    const dateF=new Date(e.date+'T00:00:00').toLocaleDateString('fr-FR');
+    let details='';
+    if(e.type==='visite'){const list=e.agencesList||[];details=`<div style="font-size:12px;color:var(--text3);margin-bottom:5px;">${list.length} agences planifiées</div><div style="display:flex;flex-wrap:wrap;gap:4px;">${list.slice(0,5).map(a=>`<span class="badge badge-teal">${a.nom}</span>`).join('')}${list.length>5?`<span class="badge badge-slate">+${list.length-5}</span>`:''}</div>`;}
+    else if(e.type==='relance'){const url=ag&&ag.adresse?'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(ag.adresse):'';details=`<span style="background:var(--amber-bg);color:var(--amber);padding:2px 8px;border-radius:5px;font-size:12px;font-weight:700;">Relance n°${e.relanceNum||1}</span> ${ag?'<span style="color:var(--text3)">— '+ag.nom+'</span>':''}${url?` <a class="maps-link" href="${url}" target="_blank">📍 Maps</a>`:''}`;}
+    else{details=`<span style="color:var(--text3);font-size:12px;">${e.notes||''}</span>`;}
+    const bilanBtn=e.type==='visite'?`<button class="btn btn-success btn-sm" onclick="openBilan('${e.id}')">📝 Bilan</button>`:'';
+    return `<tr>
+      <td style="font-weight:700;white-space:nowrap;">${dateF}</td>
+      <td><span class="badge ${tb}">${tl}</span></td>
+      <td style="font-weight:600;">${e.titre}</td>
+      <td>${details}</td>
+      <td>
+        <div style="display:flex;gap:5px;align-items:center;">
+          ${bilanBtn}
+          <button 
+            onclick="deleteEvent('${e.id}')" 
+            style="background:var(--rose-bg);border:1.5px solid rgba(229,62,62,0.3);color:var(--rose);border-radius:7px;padding:5px 12px;cursor:pointer;font-size:12px;font-weight:700;font-family:'Montserrat',sans-serif;display:flex;align-items:center;gap:5px;white-space:nowrap;"
+          >🗑️ Supprimer</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ===== DAY VIEW =====
+const JOURS = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+const MOIS_LONG = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+
+function openTourneeForDay(dateStr) {
+  // Pre-fill date in hidden field
+  const vd = document.getElementById('visite-date');
+  if (vd) vd.value = dateStr;
+  // Update modal title with the date
+  const d = new Date(dateStr + 'T00:00:00');
+  const titre = document.getElementById('modal-visite-title');
+  if (titre) {
+    const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+    const mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+    titre.textContent = '🏢 Tournée du ' + jours[d.getDay()] + ' ' + d.getDate() + ' ' + mois[d.getMonth()];
+  }
+  updateSelects();
+  // Reset lists
+  const vl = document.getElementById('visite-agences-list');
+  if (vl) { vl.innerHTML=''; for(let i=0;i<3;i++) addVisiteRow(); }
+  const rl = document.getElementById('visite-relances-list');
+  if (rl) rl.innerHTML = '';
+  const rdvl = document.getElementById('visite-rdv-list');
+  if (rdvl) rdvl.innerHTML = '';
+  document.getElementById('modal-visite').classList.add('open');
+}
+
+function openDayView(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const dayEvents = state.events.filter(e => e.date === dateStr);
+
+  // Header
+  document.getElementById('day-view-date-label').textContent =
+    JOURS[d.getDay()] + ' ' + d.getDate() + ' ' + MOIS_LONG[d.getMonth()] + ' ' + d.getFullYear();
+  document.getElementById('day-view-sub-label').textContent =
+    dayEvents.length === 0 ? 'Aucun événement planifié' :
+    dayEvents.length + ' événement' + (dayEvents.length > 1 ? 's' : '') + ' planifié' + (dayEvents.length > 1 ? 's' : '');
+
+  // Tabs
+  const tabs = document.getElementById('day-view-tabs');
+  const tabTypes = [];
+  if (dayEvents.some(e => e.type === 'visite'))   tabTypes.push({key:'visite',  label:'🏢 Tournée'});
+  if (dayEvents.some(e => e.type === 'relance'))  tabTypes.push({key:'relance', label:'📞 Relances'});
+  if (dayEvents.some(e => e.type === 'rdv'))      tabTypes.push({key:'rdv',     label:'🤝 RDV'});
+  if (tabTypes.length === 0)                      tabTypes.push({key:'empty',   label:'📅 Journée'});
+
+  tabs.innerHTML = tabTypes.map((t,i) =>
+    `<button class="day-view-tab ${i===0?'active':''}" onclick="switchDayTab(this,'${t.key}','${dateStr}')">${t.label}</button>`
+  ).join('');
+
+  // Body — show first tab
+  renderDayTab(tabTypes[0].key, dateStr);
+
+  document.getElementById('day-view-overlay').classList.add('open');
+}
+
+function closeDayView(e) {
+  if (e.target === document.getElementById('day-view-overlay')) {
+    document.getElementById('day-view-overlay').classList.remove('open');
+  }
+}
+
+function switchDayTab(btn, type, dateStr) {
+  document.querySelectorAll('.day-view-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderDayTab(type, dateStr);
+}
+
+function renderDayTab(type, dateStr) {
+  const body = document.getElementById('day-view-body');
+  const dayEvents = state.events.filter(e => e.date === dateStr);
+
+  if (type === 'empty') {
+    body.innerHTML = `<div class="day-empty">
+      <div class="day-empty-icon">📅</div>
+      <div class="day-empty-title">Journée libre</div>
+      <div class="day-empty-sub">Aucun événement planifié ce jour</div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:20px;">
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('day-view-overlay').classList.remove('open');openTourneeForDay('${dateStr}')">🏢 Planifier tournée</button>
+      </div>
+    </div>`;
+    return;
+  }
+
+  const filtered = dayEvents.filter(e => e.type === type);
+  let html = '';
+
+  filtered.forEach(ev => {
+    const typeColors = {visite:'var(--teal-xl)',relance:'var(--amber-bg)',rdv:'var(--pink-bg)'};
+    const typeIcons  = {visite:'🏢',relance:'📞',rdv:'🤝'};
+    const typeLabels = {visite:'Tournée de visites',relance:'Relance agence',rdv:'RDV Client'};
+    const ag = state.agences.find(a => a.id === ev.agenceId);
+
+    html += `<div class="day-event-card">
+      <div class="day-event-card-header">
+        <div class="day-event-type-icon" style="background:${typeColors[ev.type]||'var(--surface3)'};">${typeIcons[ev.type]||'📌'}</div>
+        <div style="flex:1;">
+          <div class="day-event-title">${ev.titre}</div>
+          <div class="day-event-meta">${typeLabels[ev.type]||ev.type}</div>
+        </div>
+        ${ev.type==='visite' ? `<button class="btn btn-success btn-sm" onclick="document.getElementById('day-view-overlay').classList.remove('open');openBilan('${ev.id}')">📝 Bilan</button>` : ''}
+        <button onclick="deleteEvent('${ev.id}')" style="background:var(--rose-bg);border:1.5px solid rgba(229,62,62,0.3);color:var(--rose);border-radius:7px;padding:5px 12px;cursor:pointer;font-size:12px;font-weight:700;font-family:'Montserrat',sans-serif;">🗑️ Supprimer</button>
+      </div>
+      <div class="day-event-body">`;
+
+    if (ev.type === 'visite') {
+      const list = ev.agencesList || [];
+
+      // Build Maps itinerary URL with all addresses in order
+      const allAddrs = list.filter(a => a.adresse).map(a => encodeURIComponent(a.adresse));
+      let mapsAllUrl = '';
+      if (allAddrs.length >= 2) {
+        mapsAllUrl = 'https://www.google.com/maps/dir/' + allAddrs.join('/');
+      } else if (allAddrs.length === 1) {
+        mapsAllUrl = 'https://www.google.com/maps/dir/?api=1&destination=' + allAddrs[0];
+      }
+
+      html += `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+        <div style="font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;">${list.length} agence${list.length>1?'s':''} planifiée${list.length>1?'s':''}</div>
+        <div style="display:flex;gap:6px;">
+          ${mapsAllUrl ? `<a href="${mapsAllUrl}" target="_blank" onclick="event.stopPropagation()" class="btn btn-secondary btn-sm" style="text-decoration:none;font-size:11px;padding:5px 12px;">🗺️ Voir sur Maps</a>` : ''}
+          <button class="btn btn-primary btn-sm" onclick="showAddAgenceToTournee('${ev.id}')" style="font-size:11px;padding:5px 12px;">+ Ajouter agence</button>
+        </div>
+      </div>`;
+
+      // Drag & drop list
+      html += `<div id="sortable-list-${ev.id}" style="min-height:40px;">`;
+      list.forEach((a, i) => {
+        const mapsUrl = a.adresse ? 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(a.adresse) : '';
+        // Get existing bilan data for this agence
+        const bilanKey = 'planned_' + i;
+        const curStatut = ev.bilan && ev.bilan.statuts ? ev.bilan.statuts[bilanKey] || '' : '';
+        const curNote   = ev.bilan && ev.bilan.notes   ? ev.bilan.notes[bilanKey]   || '' : '';
+        const curReport = ev.bilan && ev.bilan.reports ? ev.bilan.reports[bilanKey] || '' : '';
+
+        const statutBadgeMap = {
+          'Prospect':'background:#e0f2fe;color:#0284c7',
+          'Partenaire':'background:#e6f7ef;color:#0f9d58',
+          'Pas intéressé':'background:#fee2e2;color:#e53e3e',
+          'Revoir':'background:#fef3c7;color:#f59e0b',
+          'Mail en attente':'background:#ffedd5;color:#ea580c',
+          'Bonne réception du mail':'background:#d6eef5;color:#1a7fa0',
+          'Contrat en attente':'background:#ede9fe;color:#7c3aed',
+          'Contrat signé':'background:#d1fae5;color:#059669'
+        };
+        const statutStyle = curStatut ? (statutBadgeMap[curStatut]||'background:#f1f5f9;color:#64748b') : '';
+
+        html += `<div class="agence-visit-row draggable-row"
+          draggable="true"
+          data-event-id="${ev.id}"
+          data-index="${i}"
+          style="cursor:grab;user-select:none;flex-direction:column;align-items:stretch;padding:0;"
+          ondragstart="dragStart(event)"
+          ondragover="dragOver(event)"
+          ondrop="dragDrop(event,'${ev.id}')"
+          ondragend="dragEnd(event)">
+
+          <!-- Ligne principale -->
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;">
+            <div style="color:var(--text3);font-size:14px;cursor:grab;">⠿</div>
+            <div class="agence-visit-num">${i+1}</div>
+            <div style="flex:1;">
+              <div class="agence-visit-name">${a.nom}</div>
+              ${a.adresse ? `<div class="agence-visit-addr">📍 ${a.adresse}</div>` : ''}
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+              ${curStatut ? `<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;${statutStyle};font-family:'Montserrat',sans-serif;">● ${curStatut}</span>` : ''}
+              ${mapsUrl ? `<a class="maps-link" href="${mapsUrl}" target="_blank" onclick="event.stopPropagation()">📍 Maps</a>` : ''}
+              <button 
+                onclick="event.stopPropagation();toggleInlineBilan('inline-bilan-${ev.id}-${i}')"
+                style="background:${curStatut?'var(--emerald-bg)':'var(--teal-xl)'};border:1px solid ${curStatut?'rgba(15,157,88,0.3)':'rgba(26,127,160,0.2)'};color:${curStatut?'var(--emerald)':'var(--teal)'};border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:700;font-family:'Montserrat',sans-serif;white-space:nowrap;">
+                ${curStatut ? '✏️ Modifier' : '📝 Bilan'}
+              </button>
+              <button onclick="event.stopPropagation();removeAgenceFromTournee('${ev.id}',${i})" style="background:var(--rose-bg);border:1px solid rgba(229,62,62,0.2);color:var(--rose);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;">✕</button>
+            </div>
+          </div>
+
+          <!-- Bilan inline (caché par défaut, visible si pas de statut ou si on clique Modifier) -->
+          <div id="inline-bilan-${ev.id}-${i}" style="display:${curStatut?'none':'none'};border-top:1px solid var(--border);padding:12px 14px;background:var(--surface2);">
+            <div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">Résultat de la visite</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+              ${['Prospect','Partenaire','Pas intéressé','Revoir','Mail en attente','Bonne réception du mail','Contrat en attente','Contrat signé'].map(s => {
+                const sStyle = statutBadgeMap[s] || '';
+                const isSelected = curStatut === s;
+                return `<span 
+                  onclick="event.stopPropagation();setInlineStatut('${ev.id}',${i},'${s}')"
+                  style="padding:5px 11px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .15s;${sStyle};border:2px solid ${isSelected?'currentColor':'transparent'};opacity:${isSelected?1:0.55};"
+                >${s}</span>`;
+              }).join('')}
+            </div>
+            <textarea 
+              id="inline-note-${ev.id}-${i}"
+              placeholder="Note : ex. Préfère ne pas s'engager pour l'instant..."
+              style="width:100%;background:var(--surface);border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-family:'Open Sans',sans-serif;font-size:12px;outline:none;resize:vertical;min-height:52px;margin-bottom:10px;"
+              onfocus="this.style.borderColor='var(--teal)'"
+              onblur="this.style.borderColor=''"
+            >${curNote}</textarea>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;">Reporter dans</div>
+              ${['1j','2j','3j','1s','2s','1m','2m'].map(k => `<div 
+                onclick="event.stopPropagation();setInlineReport('${ev.id}',${i},'${k}',this)"
+                style="padding:4px 10px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid ${curReport===k?'var(--teal)':'var(--border)'};background:${curReport===k?'var(--teal-xl)':'var(--surface)'};color:${curReport===k?'var(--teal)':'var(--text3)'};font-family:'Montserrat',sans-serif;"
+              >${REPORT_LABELS[k]}</div>`).join('')}
+              <div style="margin-left:4px;">
+                <input type="date" 
+                  id="inline-custom-date-${ev.id}-${i}"
+                  value="${curReport && curReport.startsWith('date:') ? curReport.replace('date:','') : ''}"
+                  onchange="event.stopPropagation();setInlineReportCustomDate('${ev.id}',${i},this.value)"
+                  title="Date personnalisée"
+                  style="background:var(--surface);border:1.5px solid var(--border);color:var(--text);padding:3px 8px;border-radius:7px;font-size:11px;outline:none;cursor:pointer;"
+                >
+              </div>
+              <button 
+                onclick="event.stopPropagation();saveInlineBilan('${ev.id}',${i})"
+                style="margin-left:auto;background:var(--teal);color:white;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;">
+                ✅ Valider
+              </button>
+            </div>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+
+      // Inline add form
+      html += `<div id="add-agence-form-${ev.id}" style="display:none;margin-top:12px;padding:14px;background:var(--teal-xl);border:1.5px solid var(--teal);border-radius:var(--radius-lg);">
+        <div style="font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;color:var(--teal-d);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;">➕ Nouvelle agence dans la tournée</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input id="new-ag-nom-${ev.id}" placeholder="🏢 Nom de l'agence" style="flex:1.5;min-width:140px;background:white;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:var(--radius);font-family:'Open Sans',sans-serif;font-size:13px;outline:none;">
+          <input id="new-ag-addr-${ev.id}" placeholder="📍 Adresse" style="flex:2;min-width:160px;background:white;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:var(--radius);font-family:'Open Sans',sans-serif;font-size:13px;outline:none;">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end;">
+          <button class="btn btn-ghost btn-sm" onclick="hideAddAgenceForm('${ev.id}')">Annuler</button>
+          <button class="btn btn-primary btn-sm" onclick="confirmAddAgenceToTournee('${ev.id}')">✅ Ajouter</button>
+        </div>
+      </div>`;
+
+      if (ev.notes) html += `<div style="margin-top:12px;padding:10px 12px;background:var(--surface3);border-radius:var(--radius);font-size:12px;color:var(--text2);">📝 ${ev.notes}</div>`;
+    }
+
+    else if (ev.type === 'relance') {
+      const mapsUrl = ag && ag.adresse ? 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(ag.adresse) : '';
+      html += `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <span style="background:var(--amber-bg);color:var(--amber);padding:6px 14px;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;">Relance n°${ev.relanceNum||1}</span>
+        ${ag ? `<span class="badge badge-teal">${ag.nom}</span>` : ''}
+        ${mapsUrl ? `<a class="maps-link" href="${mapsUrl}" target="_blank" onclick="event.stopPropagation()">📍 Itinéraire</a>` : ''}
+      </div>
+      ${ag && ag.tel ? `<div style="margin-top:10px;font-size:13px;color:var(--text2);">📞 <a href="tel:${ag.tel}" style="color:var(--teal);font-weight:600;">${ag.tel}</a></div>` : ''}
+      ${ev.notes ? `<div style="margin-top:10px;padding:10px 12px;background:var(--surface3);border-radius:var(--radius);font-size:12px;color:var(--text2);">📝 ${ev.notes}</div>` : ''}`;
+    }
+
+    else if (ev.type === 'rdv') {
+      html += `<div style="font-size:13px;color:var(--text2);">
+        ${ag ? `<div style="margin-bottom:8px;"><span class="badge badge-teal">${ag.nom}</span></div>` : ''}
+        ${ev.notes ? `<div style="padding:10px 12px;background:var(--surface3);border-radius:var(--radius);">📝 ${ev.notes}</div>` : ''}
+      </div>`;
+    }
+
+    html += `</div></div>`;
+  });
+
+  // Add event button at bottom
+  html += `<div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;"></div>`;
+
+  body.innerHTML = html;
+}
+
+// ===== DRAG & DROP AGENCES TOURNÉE =====
+let dragSrcIndex = null;
+let dragEventId = null;
+
+function dragStart(e) {
+  dragSrcIndex = parseInt(e.currentTarget.dataset.index);
+  dragEventId = e.currentTarget.dataset.eventId;
+  e.currentTarget.style.opacity = '0.4';
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function dragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.style.borderColor = 'var(--teal)';
+  e.currentTarget.style.background = 'var(--teal-xl)';
+}
+
+function dragEnd(e) {
+  e.currentTarget.style.opacity = '1';
+  // Reset all rows
+  document.querySelectorAll('.draggable-row').forEach(r => {
+    r.style.borderColor = '';
+    r.style.background = '';
+  });
+}
+
+function dragDrop(e, eventId) {
+  e.preventDefault();
+  const targetIndex = parseInt(e.currentTarget.dataset.index);
+  if (dragSrcIndex === null || dragSrcIndex === targetIndex || dragEventId !== eventId) return;
+
+  const ev = state.events.find(ev => ev.id === eventId);
+  if (!ev || !ev.agencesList) return;
+
+  // Reorder
+  const list = ev.agencesList;
+  const moved = list.splice(dragSrcIndex, 1)[0];
+  list.splice(targetIndex, 0, moved);
+
+  ev.agencesList = list;
+  ev.titre = 'Tournée ' + ev.date + ' (' + list.length + ' agences)';
+
+  saveState();
+  syncToSupabase();
+  showToast('✅ Ordre mis à jour !');
+
+  // Refresh
+  renderDayTab('visite', ev.date);
+  renderCalendar();
+  dragSrcIndex = null;
+}
+
+// ===== ADD/REMOVE AGENCE FROM TOURNÉE =====
+
+function showAddAgenceToTournee(eventId) {
+  const form = document.getElementById('add-agence-form-' + eventId);
+  if (form) {
+    form.style.display = 'block';
+    // Attach autocomplete to new inputs
+    setTimeout(() => {
+      const nomInput = document.getElementById('new-ag-nom-' + eventId);
+      const addrInput = document.getElementById('new-ag-addr-' + eventId);
+      if (nomInput) {
+        attachAgenceAutocomplete(nomInput);
+        // When agence selected, auto-fill address
+        nomInput.addEventListener('agenceSelected', (e) => {
+          if (addrInput && e.detail.adresse) addrInput.value = e.detail.adresse;
+        });
+      }
+      if (addrInput) attachAddressAutocomplete(addrInput);
+      if (nomInput) nomInput.focus();
+    }, 100);
+  }
+}
+
+function hideAddAgenceForm(eventId) {
+  const form = document.getElementById('add-agence-form-' + eventId);
+  if (form) {
+    form.style.display = 'none';
+    const nomInput = document.getElementById('new-ag-nom-' + eventId);
+    const addrInput = document.getElementById('new-ag-addr-' + eventId);
+    if (nomInput) nomInput.value = '';
+    if (addrInput) addrInput.value = '';
+  }
+}
+
+function confirmAddAgenceToTournee(eventId) {
+  const nomInput = document.getElementById('new-ag-nom-' + eventId);
+  const addrInput = document.getElementById('new-ag-addr-' + eventId);
+  if (!nomInput || !nomInput.value.trim()) {
+    nomInput.style.borderColor = 'var(--rose)';
+    setTimeout(() => nomInput.style.borderColor = '', 1500);
+    return;
+  }
+
+  const ev = state.events.find(e => e.id === eventId);
+  if (!ev) return;
+
+  if (!ev.agencesList) ev.agencesList = [];
+  ev.agencesList.push({
+    nom: nomInput.value.trim(),
+    adresse: addrInput ? addrInput.value.trim() : ''
+  });
+
+  saveState();
+  syncToSupabase();
+  showToast('✅ Agence ajoutée à la tournée !');
+
+  // Refresh the day view
+  const dateStr = ev.date;
+  hideAddAgenceForm(eventId);
+  renderDayTab('visite', dateStr);
+
+  // Update event title
+  ev.titre = 'Tournée ' + dateStr + ' (' + ev.agencesList.length + ' agences)';
+  saveState();
+  renderCalendar();
+}
+
+function removeAgenceFromTournee(eventId, index) {
+  const ev = state.events.find(e => e.id === eventId);
+  if (!ev || !ev.agencesList) return;
+
+  const agenceName = ev.agencesList[index].nom;
+  if (!confirm('Retirer "' + agenceName + '" de la tournée ?')) return;
+
+  ev.agencesList.splice(index, 1);
+  ev.titre = 'Tournée ' + ev.date + ' (' + ev.agencesList.length + ' agences)';
+
+  saveState();
+  syncToSupabase();
+  showToast('🗑️ Agence retirée de la tournée');
+
+  renderDayTab('visite', ev.date);
+  renderCalendar();
+}
+
+// ===== COMMISSIONS =====
+
+// ===== DASHBOARDS =====
+
+// ==================== CAMEMBERT ====================
+function renderPieChart() {
+  const canvas = document.getElementById('pieChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const total = state.agences.length;
+
+  document.getElementById('pieCenterVal').textContent = total;
+
+  const segments = [
+    { label: 'Agences prospectées', statut: '__total__', color: '#1a7fa0', count: total },
+    { label: 'Agences partenaires',  statut: 'Contrat signé',          color: '#0f9d58', count: 0 },
+    { label: 'Contrat en attente',   statut: 'Contrat en attente',     color: '#7c3aed', count: 0 },
+    { label: 'Bonne réception',      statut: 'Bonne réception du mail',color: '#0284c7', count: 0 },
+    { label: 'Mail en attente',      statut: 'Mail en attente',        color: '#ea580c', count: 0 },
+    { label: 'À relancer',           statut: 'Revoir',                 color: '#f59e0b', count: 0 },
+    { label: 'Pas intéressées',      statut: 'Pas intéressé',          color: '#e53e3e', count: 0 },
+  ];
+
+  // Count each statut
+  segments.forEach(s => {
+    if (s.statut !== '__total__') {
+      s.count = state.agences.filter(a => a.statut === s.statut).length;
+    }
+  });
+
+  // For the pie, use all except __total__
+  const pieData = segments.filter(s => s.statut !== '__total__');
+  const pieTotal = pieData.reduce((sum, s) => sum + s.count, 0) || 1;
+
+  const W = canvas.width;
+  const H = canvas.height;
+  const cx = W / 2;
+  const cy = H / 2;
+  const R = 80;
+  const innerR = 48;
+
+  ctx.clearRect(0, 0, W, H);
+
+  let startAngle = -Math.PI / 2;
+  pieData.forEach(seg => {
+    if (seg.count === 0) return;
+    const slice = (seg.count / pieTotal) * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R, startAngle, startAngle + slice);
+    ctx.closePath();
+    ctx.fillStyle = seg.color;
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    startAngle += slice;
+  });
+
+  // If no data, draw grey circle
+  if (pieTotal === 0 || pieData.every(s => s.count === 0)) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, 2 * Math.PI);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fill();
+  }
+
+  // Inner hole (donut)
+  ctx.beginPath();
+  ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+
+  // Legend
+  const legend = document.getElementById('pieLegend');
+  if (!legend) return;
+  legend.innerHTML = segments.map(s => {
+    if (s.statut === '__total__') return '';
+    const pct = total > 0 ? Math.round((s.count / total) * 100) : 0;
+    return `<div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:12px;height:12px;border-radius:3px;background:${s.color};flex-shrink:0;"></div>
+      <div style="flex:1;font-size:12.5px;font-weight:600;color:var(--text);">${s.label}</div>
+      <div style="font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:${s.color};">${s.count}</div>
+      <div style="font-size:11px;color:var(--text3);min-width:36px;text-align:right;">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderDashboardAgences(){
+  const total=state.agences.length;const pct=n=>total>0?Math.round(n/total*100):0;
+  const count=s=>state.agences.filter(a=>a.statut===s).length;
+  const signes=count('Contrat signé'),nonint=count('Pas intéressé'),revoir=count('Revoir'),mail=count('Mail en attente'),bonrec=count('Bonne réception du mail'),contrat=count('Contrat en attente');
+  document.getElementById('dba-total').textContent=total;
+  renderPieChart();
+  document.getElementById('dba-signes').textContent=signes;document.getElementById('dba-signes-pct').textContent=pct(signes)+'% du total';
+  document.getElementById('dba-nonint').textContent=nonint;document.getElementById('dba-nonint-pct').textContent=pct(nonint)+'% du total';
+  document.getElementById('dba-revoir').textContent=revoir;document.getElementById('dba-mail').textContent=mail;
+  document.getElementById('dba-bonrec').textContent=bonrec;document.getElementById('dba-contrat').textContent=contrat;
+  const tbody=document.getElementById('dba-table');
+  if(!state.agences.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Aucune agence. Cliquez sur "+ Nouvelle agence" !</td></tr>';return;}
+  tbody.innerHTML=state.agences.map(a=>{
+    const badge=STATUT_AGENCE_BADGE[a.statut]||'badge-slate';
+    return`<tr><td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar" style="background:var(--teal-xl);color:var(--teal);">${a.nom.charAt(0)}</div><div><div style="font-weight:700;color:var(--teal-d);">${a.nom}</div><div style="font-size:11px;color:var(--text3);">${a.reseau||''}</div></div></div></td><td>${a.contact||'<span style="color:var(--text3)">—</span>'}</td><td><span class="badge ${badge}">${a.statut}</span></td><td><div style="display:flex;gap:5px;"><button class="btn btn-secondary btn-xs" onclick="editAgence('${a.id}')">✏️</button><button class="btn btn-danger btn-xs" onclick="deleteAgence('${a.id}')">🗑️</button></div></td></tr>`;
+  }).join('');
+}
+
+// ===== UTILS =====
+function updateSelects(){
+  ['rdv-agence','relance-agence'].forEach(id=>{
+    const sel=document.getElementById(id);if(!sel)return;const val=sel.value;
+    sel.innerHTML='<option value="">— Sélectionner —</option>';
+    state.agences.forEach(a=>{const opt=document.createElement('option');opt.value=a.id;opt.textContent=a.nom;sel.appendChild(opt);});
+    if(val)sel.value=val;
+  });
+}
+
+// ===== AUTOCOMPLETE =====
+function updateSearchSuggestions(inputId, datalistId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  // Use full autocomplete system instead of datalist
+  attachAgenceAutocomplete(input);
+}
+
+// getAgenceSuggestions — now just delegates to attachAgenceAutocomplete
+function getAgenceSuggestions(input) {
+  attachAgenceAutocomplete(input);
+}
+
+// ===== INIT =====
+loadState();
+// Load from Supabase on startup
+loadFromSupabase().then(() => {
+  renderDashboardAgences();
+  renderPieChart();
+  updateSelects();
+});
+const vl=document.getElementById('visite-agences-list');
+if(vl){for(let i=0;i<3;i++)addVisiteRow();}
+renderDashboardAgences();updateSelects();
+
+</script>
+</body>
+</html>
