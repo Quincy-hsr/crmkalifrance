@@ -1929,20 +1929,39 @@ function toggleInlineBilan(id) {
 }
 
 function setInlineStatut(eventId, index, statut) {
+  // 1. Save in state
   const ev = state.events.find(e => e.id === eventId);
   if (!ev) return;
   if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
   if (!ev.bilan.statuts) ev.bilan.statuts = {};
-  const key = 'planned_' + index;
-  ev.bilan.statuts[key] = statut;
+  ev.bilan.statuts['planned_' + index] = statut;
   saveState();
-  // Refresh day view to show updated badge + pill selection
-  renderDayTab('visite', ev.date);
-  // Re-open the bilan panel for this row
-  setTimeout(() => {
-    const panel = document.getElementById('inline-bilan-' + eventId + '-' + index);
-    if (panel) panel.style.display = 'block';
-  }, 50);
+
+  // 2. Update pill styles directly in DOM (no re-render — keeps note text)
+  const panel = document.getElementById('inline-bilan-' + eventId + '-' + index);
+  if (!panel) return;
+
+  panel.querySelectorAll('[onclick*="setInlineStatut"]').forEach(p => {
+    p.style.opacity = '0.5';
+    p.style.transform = 'scale(1)';
+    p.style.border = '1.5px solid transparent';
+  });
+  const allPills = panel.querySelectorAll('[onclick*="setInlineStatut"]');
+  allPills.forEach(p => {
+    if (p.textContent.trim() === statut) {
+      p.style.opacity = '1';
+      p.style.transform = 'scale(1.05)';
+      p.style.border = '2px solid currentColor';
+    }
+  });
+
+  // 3. Update the badge on the main row
+  const rowBadge = document.querySelector('#avr-' + eventId + '-' + index + ' .inline-statut-badge');
+  if (rowBadge) rowBadge.textContent = '● ' + statut;
+
+  // 4. Show reporter section if hidden
+  const reportDiv = panel.querySelector('.reporter-section');
+  if (reportDiv) reportDiv.style.display = 'block';
 }
 
 function setInlineReport(eventId, index, delay, el) {
@@ -1973,9 +1992,10 @@ function saveInlineBilan(eventId, index) {
   if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
 
   const key = 'planned_' + index;
-  const statut = ev.bilan.statuts && ev.bilan.statuts[key];
+  // Read statut directly from state (set by setInlineStatut)
+  const statut = ev.bilan && ev.bilan.statuts && ev.bilan.statuts[key];
   if (!statut) {
-    showToast('⚠️ Choisissez un statut d\'abord');
+    showToast('⚠️ Sélectionnez un statut en appuyant dessus');
     return;
   }
 
