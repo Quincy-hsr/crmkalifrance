@@ -3090,7 +3090,7 @@ function renderDayTab(type, dateStr) {
           <div id="inline-bilan-${ev.id}-${i}" style="display:${curStatut?'none':'none'};border-top:1px solid var(--border);padding:12px 14px;background:var(--surface2);">
             <div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">Résultat de la visite</div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-              ${['Prospect','Partenaire','Pas intéressé','Revoir','Mail en attente','Bonne réception du mail','Contrat en attente','Contrat signé'].map(s => {
+              ${['Pas intéressé','Revoir','Mail en attente','Bonne réception du mail','Contrat en attente','Contrat signé'].map(s => {
                 const sStyle = statutBadgeMap[s] || '';
                 const isSelected = curStatut === s;
                 return `<span 
