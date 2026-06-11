@@ -1189,6 +1189,30 @@ select.form-control option { background: var(--surface); }
     <div class="modal-body">
       <input type="hidden" id="visite-date">
 
+      <!-- IMPORT PHOTO IA -->
+      <div style="margin-bottom:16px;">
+        <div style="font-family:'Montserrat',sans-serif;font-size:10.5px;font-weight:700;color:var(--teal-d);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;">📷 Importer depuis une photo</div>
+        <label for="photo-import-input" style="display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;background:var(--teal-xl);border:2px dashed var(--teal);border-radius:var(--radius-lg);cursor:pointer;transition:all .2s;" 
+          onmouseover="this.style.background='rgba(26,127,160,0.15)'" 
+          onmouseout="this.style.background='var(--teal-xl)'">
+          <span style="font-size:24px;">📸</span>
+          <div>
+            <div style="font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;color:var(--teal-d);">Prendre une photo ou importer une image</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px;">Liste d'agences, calendrier, tableau... l'IA lit et remplit automatiquement</div>
+          </div>
+        </label>
+        <input type="file" id="photo-import-input" accept="image/*" capture="environment" style="display:none;" onchange="importFromPhoto(this)">
+        
+        <!-- Status -->
+        <div id="photo-import-status" style="display:none;margin-top:10px;padding:10px 14px;border-radius:var(--radius);font-size:13px;font-weight:600;font-family:'Montserrat',sans-serif;text-align:center;"></div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="flex:1;height:1px;background:var(--border);"></div>
+        <span style="font-size:11px;color:var(--text3);font-weight:600;font-family:'Montserrat',sans-serif;">OU SAISIR MANUELLEMENT</span>
+        <div style="flex:1;height:1px;background:var(--border);"></div>
+      </div>
+
       <!-- AGENCES -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;margin-top:6px;">
         <div class="form-label" style="margin:0;display:flex;align-items:center;gap:6px;">🏢 Agences à visiter <span style="color:var(--text3);font-weight:400;text-transform:none;font-family:'Open Sans';">— jusqu'à 20</span></div>
@@ -1686,6 +1710,116 @@ function saveInlineBilan(eventId, index) {
 
   renderDayTab('visite', ev.date);
   renderCalendar();
+}
+
+// ===== IMPORT PHOTO IA =====
+async function importFromPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const status = document.getElementById('photo-import-status');
+  status.style.display = 'block';
+  status.style.background = 'var(--teal-xl)';
+  status.style.color = 'var(--teal)';
+  status.style.border = '1px solid rgba(26,127,160,0.2)';
+  status.textContent = '🔄 Analyse en cours...';
+
+  try {
+    // Convert image to base64
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const mediaType = file.type || 'image/jpeg';
+
+    // Call Claude Vision API
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: mediaType, data: base64 }
+            },
+            {
+              type: 'text',
+              text: 'Analyse cette image et extrais la liste des agences immobilières avec leurs adresses. ' +
+                'Réponds UNIQUEMENT en JSON valide, sans texte avant ou après, au format exact : ' +
+                '[{"nom": "Nom agence", "adresse": "Adresse complète"}, ...]. ' +
+                'Si une adresse n\'est pas visible, mets une chaine vide. ' +
+                'Retourne uniquement le JSON, rien dautre.'  
+            }
+          ]
+        }]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur API: ' + response.status);
+    }
+
+    const data = await response.json();
+    const text = data.content[0].text.trim();
+
+    // Parse JSON
+    let agences;
+    try {
+      // Remove possible markdown code blocks
+      const clean = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      agences = JSON.parse(clean);
+    } catch(e) {
+      throw new Error('Impossible de lire la reponse de l\'IA');
+    }
+
+    if (!Array.isArray(agences) || agences.length === 0) {
+      throw new Error('Aucune agence trouvee dans l\'image');
+    }
+
+    // Clear existing rows
+    const list = document.getElementById('visite-agences-list');
+    list.innerHTML = '';
+
+    // Fill with detected agencies
+    agences.forEach((ag, i) => {
+      addVisiteRow();
+      const rows = list.querySelectorAll('.agence-row');
+      const lastRow = rows[rows.length - 1];
+      const nomInput = lastRow.querySelector('.v-nom');
+      const addrInput = lastRow.querySelector('.v-addr');
+      if (nomInput) nomInput.value = ag.nom || '';
+      if (addrInput) addrInput.value = ag.adresse || '';
+      // Try to auto-fill address from CRM if empty
+      if (nomInput && addrInput && !addrInput.value) {
+        const found = state.agences.find(a => a.nom.toLowerCase().includes((ag.nom||'').toLowerCase().substring(0,6)));
+        if (found && found.adresse) addrInput.value = found.adresse;
+      }
+    });
+
+    status.style.background = 'var(--emerald-bg)';
+    status.style.color = 'var(--emerald)';
+    status.style.border = '1px solid rgba(15,157,88,0.2)';
+    status.textContent = '✅ ' + agences.length + ' agence' + (agences.length > 1 ? 's' : '') + ' détectée' + (agences.length > 1 ? 's' : '') + ' — vérifiez et complétez si besoin';
+
+    showToast('✅ ' + agences.length + ' agences importées depuis la photo !');
+
+  } catch(err) {
+    status.style.background = 'var(--rose-bg)';
+    status.style.color = 'var(--rose)';
+    status.style.border = '1px solid rgba(229,62,62,0.2)';
+    status.textContent = '⚠️ ' + (err.message || 'Erreur analyse') + ' — saisissez manuellement';
+    console.error('Import photo error:', err);
+  }
+
+  // Reset input for next use
+  input.value = '';
 }
 
 // ===== TOURNÉE ROWS (défini tôt car utilisé dans le HTML) =====
