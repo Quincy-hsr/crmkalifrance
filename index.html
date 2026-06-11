@@ -1934,7 +1934,10 @@ function setInlineStatut(eventId, index, statut) {
   if (!ev) return;
   if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
   if (!ev.bilan.statuts) ev.bilan.statuts = {};
-  ev.bilan.statuts['planned_' + index] = statut;
+  // Get agence name from agencesList
+  const agNom = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : index;
+  const key = 'ag_' + agNom.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+  ev.bilan.statuts[key] = statut;
   saveState();
 
   // 2. Update pill styles directly in DOM (no re-render — keeps note text)
@@ -1991,7 +1994,8 @@ function saveInlineBilan(eventId, index) {
   if (!ev) return;
   if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
 
-  const key = 'planned_' + index;
+  const agNomS = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : index;
+  const key = 'ag_' + agNomS.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
   // Read statut directly from state (set by setInlineStatut)
   const statut = ev.bilan && ev.bilan.statuts && ev.bilan.statuts[key];
   if (!statut) {
@@ -2585,7 +2589,9 @@ function setInlineReportCustomDate(eventId, index, dateVal) {
   if (!ev) return;
   if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
   if (!ev.bilan.reports) ev.bilan.reports = {};
-  ev.bilan.reports['planned_' + index] = 'date:' + dateVal;
+  const agNomC = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : index;
+  const keyC = 'ag_' + agNomC.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+  ev.bilan.reports[keyC] = 'date:' + dateVal;
   saveState();
 }
 
@@ -2847,7 +2853,7 @@ function saveBilan(){
   const ev=state.events.find(e=>e.id===bilanData.eventId);if(!ev)return;
   ev.bilan={statuts:bilanData.statuts,reports:bilanData.reports,notes:bilanData.notes||{}};
   bilanData.agences.forEach((ag,i)=>{
-    const key='planned_'+i;const ns=bilanData.statuts[key];if(!ns)return;
+    const agN = ag.nom || i; const key='ag_'+agN.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase();const ns=bilanData.statuts[key];if(!ns)return;
     const bilanNote = bilanData.notes && bilanData.notes[key] ? bilanData.notes[key] : '';
     let found=state.agences.find(a=>a.nom.toLowerCase()===ag.nom.toLowerCase());
     if(found){
@@ -3059,7 +3065,7 @@ function renderDayTab(type, dateStr) {
       list.forEach((a, i) => {
         const mapsUrl = a.adresse ? 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(a.adresse) : '';
         // Get existing bilan data for this agence
-        const bilanKey = 'planned_' + i;
+        const bilanKey = 'ag_' + (a.nom || i).replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
         const curStatut = ev.bilan && ev.bilan.statuts ? ev.bilan.statuts[bilanKey] || '' : '';
         const curNote   = ev.bilan && ev.bilan.notes   ? ev.bilan.notes[bilanKey]   || '' : '';
         const curReport = ev.bilan && ev.bilan.reports ? ev.bilan.reports[bilanKey] || '' : '';
