@@ -1251,13 +1251,13 @@ select.form-control option { background: var(--surface); }
     </button>
 
     <div class="nav-group-label">Gestion</div>
-    <button class="nav-item" onclick="showPage('agenda')">
+    <button class="nav-item" onclick="showPage('agenda');closeSidebar()">
       <span class="nav-icon">📅</span> Agenda
     </button>
-    <button class="nav-item" onclick="showPage('agences')">
+    <button class="nav-item" onclick="showPage('agences');closeSidebar()">
       <span class="nav-icon">📋</span> Agences prospects
     </button>
-    <button class="nav-item" onclick="showPage('partenaires')">
+    <button class="nav-item" onclick="showPage('partenaires');closeSidebar()">
       <span class="nav-icon">🤝</span> Agences partenaires
     </button>
   </nav>
@@ -1357,16 +1357,19 @@ select.form-control option { background: var(--surface); }
   oninput="renderAgences();updateSearchSuggestions('search-agences','datalist-agences')" 
   list="datalist-agences" autocomplete="off">
 <datalist id="datalist-agences"></datalist>
-      <select id="filter-statut-agence" onchange="renderAgences()">
+      <select id="filter-statut-agence" onchange="renderAgences()" style="border:1.5px solid var(--border);border-radius:var(--radius);padding:8px 14px;background:var(--surface);color:var(--text);font-family:'Open Sans',sans-serif;font-size:13px;outline:none;cursor:pointer;">
         <option value="">Tous les statuts</option>
-        <option>Prospect</option><option>Partenaire</option><option>Pas intéressé</option>
-        <option>Revoir</option><option>Mail en attente</option><option>Bonne réception du mail</option>
-        <option>Contrat en attente</option><option>Contrat signé</option><option>Inactif</option>
+        <option>Pas intéressé</option>
+        <option value="Revoir">À revoir</option>
+        <option>Mail en attente</option>
+        <option>Bonne réception du mail</option>
+        <option>Contrat en attente</option>
+        <option>Contrat signé</option>
       </select>
     </div>
     <div class="panel">
       <div class="table-wrap">
-        <table><thead><tr><th>Agence</th><th>Contact</th><th>Téléphone</th><th>Statut</th><th>Commentaire</th><th>Relancer dans</th><th>Actions</th></tr></thead>
+        <table><thead><tr><th>Agence</th><th>Contact</th><th>Téléphone</th><th>Statut</th><th>Actions</th></tr></thead>
         <tbody id="agences-table"></tbody></table>
       </div>
     </div>
@@ -1418,9 +1421,9 @@ select.form-control option { background: var(--surface); }
   <div class="content">
     <div class="stats-row g4">
       <div class="stat-card pink"><div class="stripe"></div><div class="stat-icon">🤝</div><div class="stat-label">Partenaires actifs</div><div class="stat-value" id="part-total">0</div><div class="stat-sub">contrats signés</div></div>
-      <div class="stat-card teal"><div class="stripe"></div><div class="stat-icon">🔁</div><div class="stat-label">Visites post-signature</div><div class="stat-value" id="part-visites">0</div><div class="stat-sub">pour entretenir la relation</div></div>
-      <div class="stat-card amber"><div class="stripe"></div><div class="stat-icon">⏰</div><div class="stat-label">À visiter bientôt</div><div class="stat-value" id="part-urgent">0</div><div class="stat-sub">prochain passage dû</div></div>
       <div class="stat-card green"><div class="stripe"></div><div class="stat-icon">📦</div><div class="stat-label">Déménagements reçus</div><div class="stat-value" id="part-demenag">0</div><div class="stat-sub">via partenaires</div></div>
+      <div id="part-visites" style="display:none"></div>
+      <div id="part-urgent" style="display:none"></div>
     </div>
     <div id="partenaires-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;"></div>
   </div>
@@ -1447,6 +1450,60 @@ select.form-control option { background: var(--surface); }
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-partenaire')">Annuler</button>
       <button class="btn btn-primary" onclick="savePartenaire()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PARTENAIRE DETAIL -->
+<div class="modal-overlay" id="modal-partenaire-detail">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <div class="modal-title">🤝 <span id="pd-nom"></span></div>
+      <button class="modal-close" onclick="closeModal('modal-partenaire-detail')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="pd-part-id">
+
+      <!-- Infos agence -->
+      <div style="background:var(--teal-xl);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:16px;">
+        <div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;">Informations agence</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div><div style="font-size:10px;color:var(--text3);font-weight:600;">Adresse</div><div id="pd-adresse" style="font-size:13px;color:var(--text);margin-top:2px;"></div></div>
+          <div><div style="font-size:10px;color:var(--text3);font-weight:600;">Contact</div><div id="pd-contact" style="font-size:13px;color:var(--text);margin-top:2px;"></div></div>
+          <div><div style="font-size:10px;color:var(--text3);font-weight:600;">Téléphone</div><div id="pd-tel" style="font-size:13px;color:var(--text);margin-top:2px;"></div></div>
+          <div><div style="font-size:10px;color:var(--text3);font-weight:600;">Email</div><div id="pd-email" style="font-size:13px;color:var(--text);margin-top:2px;"></div></div>
+          <div><div style="font-size:10px;color:var(--text3);font-weight:600;">Date signature</div><div id="pd-date-signature" style="font-size:13px;color:var(--teal);font-weight:700;margin-top:2px;"></div></div>
+        </div>
+      </div>
+
+      <!-- Déménagements -->
+      <div class="form-group">
+        <label class="form-label">📦 Déménagements reçus</label>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button onclick="addDemenagPartenaire(document.getElementById('pd-part-id').value, -1)" style="width:36px;height:36px;border-radius:8px;background:var(--rose-bg);color:var(--rose);border:1.5px solid rgba(229,62,62,0.2);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;">−</button>
+          <span id="pd-demenag" style="font-family:'Montserrat',sans-serif;font-size:28px;font-weight:900;color:var(--teal-d);min-width:40px;text-align:center;">0</span>
+          <button onclick="addDemenagPartenaire(document.getElementById('pd-part-id').value, 1)" style="width:36px;height:36px;border-radius:8px;background:var(--teal-xl);color:var(--teal);border:1.5px solid rgba(26,127,160,0.2);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;">+</button>
+        </div>
+      </div>
+
+      <!-- Prochaine visite -->
+      <div class="form-group">
+        <label class="form-label">📅 Prochaine visite</label>
+        <input type="date" class="form-control" id="pd-prochaine-visite">
+      </div>
+
+      <!-- Commentaire -->
+      <div class="form-group">
+        <label class="form-label">📝 Notes</label>
+        <textarea class="form-control" id="pd-commentaire" placeholder="Notes sur ce partenariat..." style="min-height:80px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer" style="display:flex;justify-content:space-between;">
+      <button class="btn btn-danger btn-sm" onclick="deletePartenaire(document.getElementById('pd-part-id').value)">🗑️ Supprimer</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" onclick="closeModal('modal-partenaire-detail')">Annuler</button>
+        <button class="btn btn-primary" onclick="savePartenaireDetail()">💾 Enregistrer</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1912,18 +1969,16 @@ function toggleInlineBilan(id) {
 }
 
 function setInlineStatut(eventId, index, statut) {
-  // 1. Save in state
   const ev = state.events.find(e => e.id === eventId);
   if (!ev) return;
   if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
   if (!ev.bilan.statuts) ev.bilan.statuts = {};
-  // Get agence name from agencesList
-  const agNom = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : index;
+  const agNom = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : String(index);
   const key = 'ag_' + agNom.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
   ev.bilan.statuts[key] = statut;
   saveState();
 
-  // 2. Update pill styles directly in DOM (no re-render — keeps note text)
+  // Update pill styles
   const panel = document.getElementById('inline-bilan-' + eventId + '-' + index);
   if (!panel) return;
 
@@ -1932,8 +1987,7 @@ function setInlineStatut(eventId, index, statut) {
     p.style.transform = 'scale(1)';
     p.style.border = '1.5px solid transparent';
   });
-  const allPills = panel.querySelectorAll('[onclick*="setInlineStatut"]');
-  allPills.forEach(p => {
+  panel.querySelectorAll('[onclick*="setInlineStatut"]').forEach(p => {
     if (p.textContent.trim() === statut) {
       p.style.opacity = '1';
       p.style.transform = 'scale(1.05)';
@@ -1941,13 +1995,15 @@ function setInlineStatut(eventId, index, statut) {
     }
   });
 
-  // 3. Update the badge on the main row
-  const rowBadge = document.querySelector('#avr-' + eventId + '-' + index + ' .inline-statut-badge');
-  if (rowBadge) rowBadge.textContent = '● ' + statut;
+  // Show reporter section ONLY for "Revoir"
+  const reporterSection = document.getElementById('reporter-section-' + eventId + '-' + index);
+  if (reporterSection) {
+    reporterSection.style.display = statut === 'Revoir' ? 'flex' : 'none';
+  }
 
-  // 4. Show reporter section if hidden
-  const reportDiv = panel.querySelector('.reporter-section');
-  if (reportDiv) reportDiv.style.display = 'block';
+  // Always show Valider button once a statut is selected
+  const validerBtn = document.getElementById('valider-btn-' + eventId + '-' + index);
+  if (validerBtn) validerBtn.style.display = 'inline-flex';
 }
 
 function setInlineReport(eventId, index, delay, el) {
@@ -1955,7 +2011,8 @@ function setInlineReport(eventId, index, delay, el) {
   if (!ev) return;
   if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
   if (!ev.bilan.reports) ev.bilan.reports = {};
-  const key = 'planned_' + index;
+  const agNom = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : String(index);
+  const key = 'ag_' + agNom.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
   ev.bilan.reports[key] = delay;
   saveState();
   // Update button styles
@@ -2005,11 +2062,30 @@ function saveInlineBilan(eventId, index) {
       if (note) agence.commentaire = note;
     } else {
       const adresse = ev.agencesList[index].adresse || '';
-      state.agences.push({
+      agence = {
         id: Date.now().toString() + Math.random(),
         nom: agenceNom, adresse, statut,
         commentaire: note, contact:'', tel:'', email:'', reseau:''
-      });
+      };
+      state.agences.push(agence);
+    }
+
+    // Auto-add to partenaires if Contrat signé
+    if (statut === 'Contrat signé') {
+      if (!state.partenaires) state.partenaires = [];
+      const alreadyPartner = state.partenaires.find(p => p.agenceId === agence.id);
+      if (!alreadyPartner) {
+        state.partenaires.push({
+          id: Date.now().toString() + Math.random(),
+          agenceId: agence.id,
+          dateSignature: todayStr(),
+          visitesPostSignature: 0,
+          demenagements: 0,
+          commentaire: note || '',
+          prochaineVisite: addDays(todayStr(), 30)
+        });
+        showToast('🤝 ' + agenceNom + ' ajoutée aux partenaires !');
+      }
     }
   }
 
@@ -2065,29 +2141,42 @@ function addRelanceRow() {
   list.appendChild(div);
 }
 
-function addRdvRow() {
-  const list = document.getElementById('visite-rdv-list');
-  if (!list) return;
-  const div = document.createElement('div');
-  div.className = 'agence-row';
-  div.style.marginBottom = '7px';
-  const agencesOptions = state.agences.map(a => `<option value="${a.id}">${a.nom}</option>`).join('');
-  div.innerHTML = `
-    <span style="font-size:14px;">🤝</span>
-    <input class="v-rdv-titre" placeholder="Titre du RDV (ex: RDV devis Dupont)" style="flex:2;background:transparent;border:none;color:var(--text);font-family:'Open Sans',sans-serif;font-size:13px;outline:none;">
-    <select class="v-rdv-agence" style="width:160px;background:var(--surface2);border:1.5px solid var(--border);color:var(--text);padding:8px 10px;border-radius:var(--radius);font-family:'Open Sans',sans-serif;font-size:12px;outline:none;">
-      <option value="">-- Agence liée --</option>
-      ${agencesOptions}
-    </select>
-    <button class="del-row" onclick="this.closest('.agence-row').remove()">✕</button>`;
-  list.appendChild(div);
+function savePartenaireDetail() {
+  const partId = document.getElementById('pd-part-id').value;
+  const p = state.partenaires.find(x => x.id === partId);
+  if (!p) return;
+
+  p.prochaineVisite = document.getElementById('pd-prochaine-visite').value;
+  p.commentaire = document.getElementById('pd-commentaire').value;
+
+  // Always remove old visite-partenaire for this partenaire then recreate
+  state.events = state.events.filter(e => !(e.type === 'visite-partenaire' && e.partenaireId === partId));
+
+  if (p.prochaineVisite) {
+    const ag = state.agences.find(a => a.id === p.agenceId);
+    const agNom = ag ? ag.nom : 'Partenaire';
+    state.events.push({
+      id: 'vp-' + partId,
+      type: 'visite-partenaire',
+      date: p.prochaineVisite,
+      partenaireId: partId,
+      agenceId: p.agenceId,
+      titre: 'Visite partenaire — ' + agNom,
+      notes: p.commentaire || ''
+    });
+  }
+
+  saveState();
+  renderPartenaires();
+  renderCalendar();
+  closeModal('modal-partenaire-detail');
+  showToast('✅ Partenaire mis à jour !');
+  syncToSupabase();
 }
 
-// Attach address autocomplete to any input
 function attachAddressAutocomplete(input) {
   if (input._addrAttached) return;
   input._addrAttached = true;
-
   input.addEventListener('input', function() {
     clearTimeout(addrTimer);
     const val = this.value.trim();
@@ -2351,9 +2440,10 @@ function showSyncStatus(msg) {
 let isOnline = true;
 setInterval(async () => {
   try {
-    const [agencesRows, eventsRows] = await Promise.all([
+    const [agencesRows, eventsRows, partRows] = await Promise.all([
       supa.get('agences'),
-      supa.get('events')
+      supa.get('events'),
+      supa.get('partenaires').catch(()=>[])
     ]);
     if (!isOnline) {
       isOnline = true;
@@ -2362,10 +2452,14 @@ setInterval(async () => {
     }
     const newAgences = agencesRows.map(r => r.data);
     const newEvents  = eventsRows.map(r => r.data);
+    const newPartenaires = partRows.map(r => r.data);
     if (JSON.stringify(newAgences) !== JSON.stringify(state.agences) ||
         JSON.stringify(newEvents)  !== JSON.stringify(state.events)) {
       state.agences = newAgences;
-      state.events  = newEvents;
+      // Preserve visite-partenaire events (they use stable id 'vp-...')
+      const vpEvents = state.events.filter(e => e.type === 'visite-partenaire');
+      const mergedEvents = [...newEvents.filter(e => e.type !== 'visite-partenaire'), ...vpEvents];
+      state.events = mergedEvents;
       saveState();
       const activePage = document.querySelector('.page.active');
       if (activePage) {
@@ -2470,9 +2564,15 @@ const AGENCES_DB = [
 
 // ===== CONSTANTS =====
 const STATUT_AGENCE_BADGE={
-  'Prospect':'badge-sky','Partenaire':'badge-emerald','Pas intéressé':'badge-rose',
-  'Revoir':'badge-amber','Mail en attente':'badge-orange','Bonne réception du mail':'badge-teal',
-  'Contrat en attente':'badge-violet','Contrat signé':'badge-pink','Inactif':'badge-slate'
+  'Pas intéressé'      : 'badge-rose',
+  'Revoir'             : 'badge-amber',
+  'Mail en attente'    : 'badge-orange',
+  'Bonne réception du mail': 'badge-teal',
+  'Contrat en attente' : 'badge-violet',
+  'Contrat signé'      : 'badge-emerald',
+  'Prospect'           : 'badge-sky',
+  'Partenaire'         : 'badge-emerald',
+  'Inactif'            : 'badge-slate'
 };
 const STATUT_CLIENT_BADGE={
   'Visite technique':'badge-teal','Devis envoyé':'badge-amber','À relancer':'badge-orange',
@@ -2660,8 +2760,7 @@ function renderAgences(){
       <td>${a.contact||'<span style="color:var(--text3)">—</span>'}</td>
       <td>${a.tel||'<span style="color:var(--text3)">—</span>'}</td>
       <td><span class="badge ${badge}">${a.statut}</span></td>
-      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text3);font-size:12px;">${a.commentaire||'—'}</td>
-      <td><div class="report-opts" style="margin:0;">${['1j','2j','3j','1s','2s','1m','2m'].map(k=>`<div class="ropt" onclick="quickRelance('${a.id}','${k}')" title="${REPORT_LABELS[k]}" style="padding:3px 7px;font-size:10px;">${k}</div>`).join('')}</div></td>
+
       <td><div style="display:flex;gap:5px;">
         <button class="btn btn-secondary btn-xs" onclick="editAgence('${a.id}')">✏️ Modifier</button>
         <button class="btn btn-danger btn-xs" onclick="deleteAgence('${a.id}')">🗑️</button>
@@ -2869,7 +2968,7 @@ function renderCalendar(){
   for(let d=1;d<=dim;d++){
     const ds=`${state.currentYear}-${String(state.currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isT=today.getDate()===d&&today.getMonth()===state.currentMonth&&today.getFullYear()===state.currentYear;
-    const de=state.events.filter(e=>e.date===ds);const hasTournee=de.some(e=>e.type==='visite');
+    const de=state.events.filter(e=>e.date===ds);const hasTournee=de.some(e=>e.type==='visite'||e.type==='visite-partenaire');
     html+=`<div class="day-cell ${isT?'today':''} ${de.length?'has-ev':''}" onclick="openDayView('${ds}')">
       <div class="day-num">${d}${hasTournee?'<span class="day-badge">✓</span>':''}</div>
       ${de.slice(0,3).map(e=>{
@@ -2879,6 +2978,7 @@ function renderCalendar(){
           const nomR=agR?agR.nom.substring(0,10):e.titre.substring(0,10);
           return`<div class="event-chip relance">📞 ${nomR}<span class="relance-badge">n°${e.relanceNum||1}</span></div>`;
         }
+        if(e.type==='visite-partenaire') return`<div class="event-chip" style="background:#e6f7ef;color:#0f9d58;border-color:rgba(15,157,88,0.3);">🤝 ${e.titre.substring(0,14)}</div>`;
         return`<div class="event-chip rdv">🤝 ${e.titre.substring(0,13)}</div>`;
       }).join('')}
       ${de.length>3?`<div style="font-size:10px;color:var(--text3);margin-top:2px;">+${de.length-3} autres</div>`:''}
@@ -2964,9 +3064,10 @@ function openDayView(dateStr) {
   // Tabs
   const tabs = document.getElementById('day-view-tabs');
   const tabTypes = [];
-  if (dayEvents.some(e => e.type === 'visite'))   tabTypes.push({key:'visite',  label:'🏢 Tournée'});
-  if (dayEvents.some(e => e.type === 'relance'))  tabTypes.push({key:'relance', label:'📞 Relances'});
-  if (dayEvents.some(e => e.type === 'rdv'))      tabTypes.push({key:'rdv',     label:'🤝 RDV'});
+  if (dayEvents.some(e => e.type === 'visite'))            tabTypes.push({key:'visite',           label:'🏢 Tournée'});
+  if (dayEvents.some(e => e.type === 'relance'))           tabTypes.push({key:'relance',          label:'📞 Relances'});
+  if (dayEvents.some(e => e.type === 'rdv'))               tabTypes.push({key:'rdv',              label:'🤝 RDV'});
+  if (dayEvents.some(e => e.type === 'visite-partenaire')) tabTypes.push({key:'visite-partenaire',label:'🤝 Partenaire'});
   if (tabTypes.length === 0)                      tabTypes.push({key:'empty',   label:'📅 Journée'});
 
   tabs.innerHTML = tabTypes.map((t,i) =>
@@ -3011,9 +3112,9 @@ function renderDayTab(type, dateStr) {
   let html = '';
 
   filtered.forEach(ev => {
-    const typeColors = {visite:'var(--teal-xl)',relance:'var(--amber-bg)',rdv:'var(--pink-bg)'};
-    const typeIcons  = {visite:'🏢',relance:'📞',rdv:'🤝'};
-    const typeLabels = {visite:'Tournée de visites',relance:'Relance agence',rdv:'RDV Client'};
+    const typeColors = {visite:'var(--teal-xl)',relance:'var(--amber-bg)',rdv:'var(--pink-bg)','visite-partenaire':'#e6f7ef'};
+    const typeIcons  = {visite:'🏢',relance:'📞',rdv:'🤝','visite-partenaire':'🤝'};
+    const typeLabels = {visite:'Tournée de visites',relance:'Relance agence',rdv:'RDV Client','visite-partenaire':'Visite partenaire'};
     const ag = state.agences.find(a => a.id === ev.agenceId);
 
     html += `<div class="day-event-card">
@@ -3120,7 +3221,7 @@ function renderDayTab(type, dateStr) {
               onfocus="this.style.borderColor='var(--teal)'"
               onblur="this.style.borderColor=''"
             >${curNote}</textarea>
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;${curStatut==='Revoir'?'':'display:none !important'}">
+            <div id="reporter-section-${ev.id}-${i}" style="display:${curStatut==='Revoir'?'flex':'none'};gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
               <div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;">Reporter dans</div>
               ${['1j','2j','3j','1s','2s','1m','2m'].map(k => `<div 
                 onclick="event.stopPropagation();setInlineReport('${ev.id}',${i},'${k}',this)"
@@ -3135,9 +3236,12 @@ function renderDayTab(type, dateStr) {
                   style="background:var(--surface);border:1.5px solid var(--border);color:var(--text);padding:3px 8px;border-radius:7px;font-size:11px;outline:none;cursor:pointer;"
                 >
               </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:4px;">
               <button 
+                id="valider-btn-${ev.id}-${i}"
                 onclick="event.stopPropagation();saveInlineBilan('${ev.id}',${i})"
-                style="margin-left:auto;background:var(--teal);color:white;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;">
+                style="background:var(--teal);color:white;border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;display:inline-flex;align-items:center;gap:6px;">
                 ✅ Valider
               </button>
             </div>
@@ -3177,6 +3281,21 @@ function renderDayTab(type, dateStr) {
       html += `<div style="font-size:13px;color:var(--text2);">
         ${ag ? `<div style="margin-bottom:8px;"><span class="badge badge-teal">${ag.nom}</span></div>` : ''}
         ${ev.notes ? `<div style="padding:10px 12px;background:var(--surface3);border-radius:var(--radius);">📝 ${ev.notes}</div>` : ''}
+      </div>`;
+    }
+
+    else if (ev.type === 'visite-partenaire') {
+      const agP = state.agences.find(a => a.id === ev.agenceId);
+      const p = state.partenaires ? state.partenaires.find(x => x.partenaireId === ev.partenaireId || x.agenceId === ev.agenceId) : null;
+      html += `<div style="font-size:13px;color:var(--text2);">
+        ${agP ? `<div style="margin-bottom:10px;"><span class="badge" style="background:#e6f7ef;color:#0f9d58;">${agP.nom}</span></div>` : ''}
+        ${agP && agP.adresse ? `<div style="margin-bottom:6px;">📍 ${agP.adresse}</div>` : ''}
+        ${agP && agP.tel ? `<div style="margin-bottom:6px;">📞 <a href="tel:${agP.tel}" style="color:var(--teal);font-weight:600;">${agP.tel}</a></div>` : ''}
+        ${p ? `<div style="margin-bottom:6px;">📦 ${p.demenagements||0} déménagement(s) reçu(s)</div>` : ''}
+        ${ev.notes ? `<div style="padding:10px 12px;background:var(--surface3);border-radius:var(--radius);margin-top:8px;">📝 ${ev.notes}</div>` : ''}
+        <div style="margin-top:12px;">
+          <button class="btn btn-primary btn-sm" onclick="openPartenaireDetail('${ev.partenaireId}');document.getElementById('day-view-overlay').classList.remove('open');">✏️ Gérer ce partenaire</button>
+        </div>
       </div>`;
     }
 
@@ -3505,13 +3624,8 @@ function renderPartenaires() {
   if (!state.partenaires) state.partenaires = [];
   const partenaires = state.partenaires;
 
-  // Stats
+  // Stats — seulement 2
   document.getElementById('part-total').textContent = partenaires.length;
-  const totalVisites = partenaires.reduce((s,p) => s + (p.visitesPostSignature||0), 0);
-  document.getElementById('part-visites').textContent = totalVisites;
-  const today = todayStr();
-  const urgent = partenaires.filter(p => p.prochaineVisite && p.prochaineVisite <= today).length;
-  document.getElementById('part-urgent').textContent = urgent;
   const totalDemenag = partenaires.reduce((s,p) => s + (p.demenagements||0), 0);
   document.getElementById('part-demenag').textContent = totalDemenag;
 
@@ -3525,50 +3639,29 @@ function renderPartenaires() {
     return;
   }
 
-  const MOIS = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+  const colors = ['#1a7fa0','#e91e8c','#0f9d58','#f59e0b','#7c3aed','#e53e3e'];
+
   grid.innerHTML = partenaires.map(p => {
     const ag = state.agences.find(a => a.id === p.agenceId);
     if (!ag) return '';
-    const dateSign = p.dateSignature ? new Date(p.dateSignature+'T00:00:00') : null;
-    const dateSignF = dateSign ? dateSign.getDate()+' '+MOIS[dateSign.getMonth()]+' '+dateSign.getFullYear() : '—';
-    const prochaineF = p.prochaineVisite ? new Date(p.prochaineVisite+'T00:00:00').toLocaleDateString('fr-FR') : '—';
-    const isUrgent = p.prochaineVisite && p.prochaineVisite <= today;
-    const colors = ['#1a7fa0','#e91e8c','#0f9d58','#f59e0b','#7c3aed','#e53e3e'];
     const col = colors[ag.nom.charCodeAt(0) % colors.length];
+    const today = todayStr();
+    const isUrgent = p.prochaineVisite && p.prochaineVisite <= today;
 
-    return `<div style="background:var(--surface);border:1.5px solid ${isUrgent?'var(--amber)':'var(--border)'};border-radius:var(--radius-lg);padding:0;overflow:hidden;box-shadow:var(--shadow-sm);transition:all .2s;">
-      <!-- Header -->
-      <div style="background:linear-gradient(135deg,${col}22,${col}11);padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
-        <div style="width:44px;height:44px;border-radius:10px;background:${col}22;color:${col};display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:18px;font-weight:900;flex-shrink:0;">${ag.nom.charAt(0)}</div>
-        <div style="flex:1;">
-          <div style="font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;color:var(--teal-d);">${ag.nom}</div>
-          <div style="font-size:11.5px;color:var(--text3);">📅 Signé le ${dateSignF}</div>
-        </div>
-        <span style="background:var(--emerald-bg);color:var(--emerald);font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;">Actif</span>
-      </div>
-      <!-- Stats -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-bottom:1px solid var(--border);">
-        <div style="padding:12px;text-align:center;border-right:1px solid var(--border);">
-          <div style="font-family:'Montserrat',sans-serif;font-size:20px;font-weight:900;color:var(--teal);">${p.visitesPostSignature||0}</div>
-          <div style="font-size:10px;color:var(--text3);font-weight:600;margin-top:2px;">Visites</div>
-        </div>
-        <div style="padding:12px;text-align:center;border-right:1px solid var(--border);">
-          <div style="font-family:'Montserrat',sans-serif;font-size:20px;font-weight:900;color:var(--pink);">${p.demenagements||0}</div>
-          <div style="font-size:10px;color:var(--text3);font-weight:600;margin-top:2px;">Déménag.</div>
-        </div>
-        <div style="padding:12px;text-align:center;">
-          <div style="font-family:'Montserrat',sans-serif;font-size:13px;font-weight:800;color:${isUrgent?'var(--amber)':'var(--text2)'};">${prochaineF}</div>
-          <div style="font-size:10px;color:var(--text3);font-weight:600;margin-top:2px;">Proch. visite</div>
+    return `<div 
+      onclick="openPartenaireDetail('${p.id}')"
+      style="background:var(--surface);border:1.5px solid ${isUrgent?'var(--amber)':'var(--border)'};border-radius:var(--radius-lg);padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all .18s;box-shadow:var(--shadow-sm);"
+      onmouseover="this.style.boxShadow='var(--shadow-md)';this.style.borderColor='${col}'"
+      onmouseout="this.style.boxShadow='var(--shadow-sm)';this.style.borderColor='${isUrgent?'var(--amber)':'var(--border)'}'">
+      <div style="width:46px;height:46px;border-radius:12px;background:${col}22;color:${col};display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:20px;font-weight:900;flex-shrink:0;">${ag.nom.charAt(0).toUpperCase()}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:'Montserrat',sans-serif;font-size:14px;font-weight:800;color:var(--teal-d);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ag.nom}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px;">
+          📦 ${p.demenagements||0} déménagement${(p.demenagements||0)>1?'s':''}
+          ${isUrgent ? ' · <span style="color:var(--amber);font-weight:700;">⚠️ Visite due</span>' : ''}
         </div>
       </div>
-      <!-- Actions -->
-      <div style="padding:12px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        ${isUrgent ? `<span style="font-size:11px;font-weight:700;color:var(--amber);background:var(--amber-bg);padding:3px 9px;border-radius:8px;font-family:'Montserrat',sans-serif;">⚠️ Visite due !</span>` : ''}
-        <div style="display:flex;gap:6px;margin-left:auto;">
-          <button onclick="addVisitePartenaire('${p.id}')" style="background:var(--teal-xl);color:var(--teal);border:1.5px solid rgba(26,127,160,0.2);border-radius:7px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:700;font-family:'Montserrat',sans-serif;">✅ Visite faite</button>
-          <button onclick="editPartenaire('${p.id}')" style="background:var(--surface2);color:var(--text2);border:1.5px solid var(--border);border-radius:7px;padding:6px 12px;cursor:pointer;font-size:12px;font-weight:700;font-family:'Montserrat',sans-serif;">✏️ Modifier</button>
-        </div>
-      </div>
+      <div style="color:var(--text3);font-size:18px;">›</div>
     </div>`;
   }).join('');
 }
@@ -3615,6 +3708,99 @@ document.querySelectorAll('.nav-item').forEach(btn => {
     if (window.innerWidth <= 768) closeSidebar();
   });
 });
+
+// ===== PARTENAIRE DETAIL =====
+function openPartenaireDetail(partId) {
+  const p = state.partenaires.find(x => x.id === partId);
+  if (!p) return;
+  const ag = state.agences.find(a => a.id === p.agenceId);
+  if (!ag) return;
+
+  const MOIS = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+  const dateSign = p.dateSignature ? new Date(p.dateSignature+'T00:00:00') : null;
+  const dateSignF = dateSign ? dateSign.getDate()+' '+MOIS[dateSign.getMonth()]+' '+dateSign.getFullYear() : '—';
+
+  const modal = document.getElementById('modal-partenaire-detail');
+  if (!modal) return;
+
+  document.getElementById('pd-nom').textContent = ag.nom;
+  document.getElementById('pd-adresse').textContent = ag.adresse || '—';
+  document.getElementById('pd-tel').textContent = ag.tel || '—';
+  document.getElementById('pd-email').textContent = ag.email || '—';
+  document.getElementById('pd-contact').textContent = ag.contact || '—';
+  document.getElementById('pd-date-signature').textContent = dateSignF;
+  document.getElementById('pd-demenag').textContent = p.demenagements || 0;
+  document.getElementById('pd-prochaine-visite').value = p.prochaineVisite || '';
+  document.getElementById('pd-commentaire').value = p.commentaire || '';
+  document.getElementById('pd-part-id').value = partId;
+
+  modal.classList.add('open');
+}
+
+function savePartenaireDetail() {
+  const partId = document.getElementById('pd-part-id').value;
+  const p = state.partenaires.find(x => x.id === partId);
+  if (!p) return;
+
+  const oldDate = p.prochaineVisite;
+  p.prochaineVisite = document.getElementById('pd-prochaine-visite').value;
+  p.commentaire = document.getElementById('pd-commentaire').value;
+
+  // Sync prochaine visite to agenda as "Visite partenaire"
+  if (p.prochaineVisite) {
+    const ag = state.agences.find(a => a.id === p.agenceId);
+    const agNom = ag ? ag.nom : 'Partenaire';
+
+    // Remove old visite partenaire event for this partner if date changed
+    if (oldDate !== p.prochaineVisite) {
+      state.events = state.events.filter(e =>
+        !(e.type === 'visite-partenaire' && e.partenaireId === partId)
+      );
+    }
+
+    // Check if event already exists for this date
+    const existing = state.events.find(e =>
+      e.type === 'visite-partenaire' && e.partenaireId === partId
+    );
+
+    if (!existing) {
+      state.events.push({
+        id: Date.now().toString() + Math.random(),
+        type: 'visite-partenaire',
+        date: p.prochaineVisite,
+        partenaireId: partId,
+        agenceId: p.agenceId,
+        titre: 'Visite partenaire — ' + agNom,
+        notes: p.commentaire || ''
+      });
+    }
+  }
+
+  saveState();
+  // Render immediately with local state
+  renderPartenaires();
+  renderCalendar();
+  closeModal('modal-partenaire-detail');
+  showToast('✅ Partenaire mis à jour !');
+  // Sync to Supabase after render so auto-refresh doesn't erase local changes
+  syncToSupabase();
+}
+
+function addDemenagPartenaire(partId, delta) {
+  const p = state.partenaires.find(x => x.id === partId);
+  if (!p) return;
+  p.demenagements = Math.max(0, (p.demenagements || 0) + delta);
+  document.getElementById('pd-demenag').textContent = p.demenagements;
+  saveState(); syncToSupabase(); renderPartenaires();
+}
+
+function deletePartenaire(partId) {
+  state.partenaires = state.partenaires.filter(p => p.id !== partId);
+  saveState(); syncToSupabase();
+  renderPartenaires();
+  closeModal('modal-partenaire-detail');
+  showToast('🗑️ Partenaire supprimé');
+}
 
 // ===== INIT =====
 loadState();
