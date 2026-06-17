@@ -2671,8 +2671,7 @@ function scheduleRelanceOnDate(agenceId, exactDate, num) {
     titre: agNom + ' — Relance n°' + (num || 1),
     notes: 'Date personnalisée'
   });
-  saveState();
-  syncToSupabase();
+  // Note: saveState() and syncToSupabase() called by caller
 }
 
 function setInlineReportCustomDate(eventId, index, dateVal) {
@@ -2840,7 +2839,8 @@ function deleteEvent(id){
   const evDate = ev ? ev.date : null;
   state.events = state.events.filter(e => e.id !== id);
   saveState();
-  syncToSupabase();
+  // Delete from Supabase so auto-refresh doesn't bring it back
+  deleteFromSupabase('events', id);
   renderCalendar();
   showToast('🗑️ Événement supprimé');
   // Refresh day view if it's open on the same date
