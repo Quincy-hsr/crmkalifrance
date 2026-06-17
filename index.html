@@ -2063,7 +2063,7 @@ function saveInlineBilan(eventId, index) {
     } else {
       const adresse = ev.agencesList[index].adresse || '';
       agence = {
-        id: Date.now().toString() + Math.random(),
+        id: Date.now().toString() + '-' + Math.floor(Math.random()*100000),
         nom: agenceNom, adresse, statut,
         commentaire: note, contact:'', tel:'', email:'', reseau:''
       };
@@ -2076,7 +2076,7 @@ function saveInlineBilan(eventId, index) {
       const alreadyPartner = state.partenaires.find(p => p.agenceId === agence.id);
       if (!alreadyPartner) {
         state.partenaires.push({
-          id: Date.now().toString() + Math.random(),
+          id: Date.now().toString() + '-' + Math.floor(Math.random()*100000),
           agenceId: agence.id,
           dateSignature: todayStr(),
           visitesPostSignature: 0,
@@ -2090,6 +2090,10 @@ function saveInlineBilan(eventId, index) {
   }
 
   // Schedule relance if delay selected
+  // Remove relances if final statut
+  if (['Contrat signé', 'Pas intéressé', 'Mail en attente', 'Bonne réception du mail', 'Contrat en attente'].includes(statut)) {
+    state.events = state.events.filter(e => !(e.type === 'relance' && e.agenceId === (state.agences.find(a => a.nom.toLowerCase() === agenceNom.toLowerCase())?.id)));
+  }
   // Schedule relance only when statut is "Revoir"
   if (statut === 'Revoir' && report) {
     // Find or create agence
@@ -2659,7 +2663,7 @@ function scheduleRelanceOnDate(agenceId, exactDate, num) {
   const ag = state.agences.find(a => a.id === agenceId);
   const agNom = ag ? ag.nom : 'Agence';
   state.events.push({
-    id: Date.now().toString() + Math.random(),
+    id: Date.now().toString() + '-' + Math.floor(Math.random()*100000),
     type: 'relance',
     date: exactDate,
     agenceId,
@@ -2691,7 +2695,7 @@ function scheduleRelance(agenceId, delay, num, baseDate) {
   const ag = state.agences.find(a => a.id === agenceId);
   const agNom = ag ? ag.nom : 'Agence inconnue';
   state.events.push({
-    id: Date.now().toString() + Math.random(),
+    id: Date.now().toString() + '-' + Math.floor(Math.random()*100000),
     type: 'relance',
     date,
     agenceId,
@@ -2720,7 +2724,15 @@ function saveAgence(){
       scheduleRelance(a.id,delay,n);
     }
   }
-  saveState();closeModal('modal-agence');renderAgences();renderDashboardAgences();updateSelects();
+  // If statut changed to something final, remove pending relances for this agence
+  const finalStatuts = ['Contrat signé', 'Pas intéressé'];
+  if (finalStatuts.includes(a.statut)) {
+    const before = state.events.length;
+    state.events = state.events.filter(e => !(e.type === 'relance' && e.agenceId === a.id));
+    const removed = before - state.events.length;
+    if (removed > 0) showToast('🗑️ ' + removed + ' relance(s) supprimée(s) automatiquement');
+  }
+  saveState();closeModal('modal-agence');renderAgences();renderDashboardAgences();renderCalendar();updateSelects();
   syncToSupabase().then(()=>showSyncStatus('✅ Synchronisé')).then(()=>setTimeout(()=>showSyncStatus(''),2000));
 }
 function editAgence(id){
@@ -3765,7 +3777,7 @@ function savePartenaireDetail() {
 
     if (!existing) {
       state.events.push({
-        id: Date.now().toString() + Math.random(),
+        id: Date.now().toString() + '-' + Math.floor(Math.random()*100000),
         type: 'visite-partenaire',
         date: p.prochaineVisite,
         partenaireId: partId,
