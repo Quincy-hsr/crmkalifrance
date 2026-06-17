@@ -1341,16 +1341,7 @@ select.form-control option { background: var(--surface); }
       </div>
     </div>
 
-    <div class="panel">
-      <div class="panel-header">
-        <div class="panel-title"><span class="panel-title-icon">🏢</span> Toutes les agences prospects</div>
-        <button class="btn btn-secondary btn-sm" onclick="showPage('agences')">Gérer →</button>
-      </div>
-      <div class="table-wrap">
-        <table><thead><tr><th>Agence</th><th>Contact</th><th>Statut</th><th>Actions</th></tr></thead>
-        <tbody id="dba-table"></tbody></table>
-      </div>
-    </div>
+    
   </div>
 </div>
 
@@ -1408,15 +1399,7 @@ select.form-control option { background: var(--surface); }
       <div class="cal-day-label">Jeu</div><div class="cal-day-label">Ven</div><div class="cal-day-label">Sam</div><div class="cal-day-label">Dim</div>
     </div>
     <div class="cal-grid" id="calendar-grid"></div>
-    <div class="panel">
-      <div class="panel-header">
-        <div class="panel-title"><span class="panel-title-icon">📋</span> Prochains événements</div>
-      </div>
-      <div class="table-wrap">
-        <table><thead><tr><th>Date</th><th>Type</th><th>Titre</th><th>Détails</th><th>Actions</th></tr></thead>
-        <tbody id="events-table"></tbody></table>
-      </div>
-    </div>
+    
   </div>
 </div>
 
@@ -2031,17 +2014,22 @@ function saveInlineBilan(eventId, index) {
   }
 
   // Schedule relance if delay selected
-  if (report && statut !== 'Contrat signé') {
-    const agence = state.agences.find(a => a.nom.toLowerCase() === agenceNom.toLowerCase());
+  // Schedule relance only when statut is "Revoir"
+  if (statut === 'Revoir' && report) {
+    // Find or create agence
+    let agence = state.agences.find(a => a.nom.toLowerCase() === agenceNom.toLowerCase());
+    if (!agence && agenceNom) {
+      // Create agence if not exists
+      agence = state.agences.find(a => a.nom.toLowerCase() === agenceNom.toLowerCase());
+    }
     if (agence) {
-      const n = state.events.filter(e => e.type==='relance' && e.agenceId===agence.id).length + 1;
+      const n = state.events.filter(e => e.type === 'relance' && e.agenceId === agence.id).length + 1;
       if (report.startsWith('date:')) {
-        // Date personnalisée
-        scheduleRelanceOnDate(agence.id, report.replace('date:',''), n);
+        scheduleRelanceOnDate(agence.id, report.replace('date:', ''), n);
       } else {
-        // Nombre de jours depuis la date du bilan
         scheduleRelance(agence.id, report, n, ev.date);
       }
+      showToast('📅 Relance planifiée pour ' + agenceNom);
     }
   }
 
@@ -2901,7 +2889,7 @@ function renderCalendar(){
 function renderEventsList(){
   const todayS=new Date().toISOString().split('T')[0];
   const upcoming=state.events.filter(e=>e.date>=todayS).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,30);
-  const tbody=document.getElementById('events-table');
+  const tbody=document.getElementById('events-table'); if(!tbody) return;
   if(!upcoming.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">Aucun événement à venir</td></tr>';return;}
   tbody.innerHTML=upcoming.map(e=>{
     const ag=state.agences.find(a=>a.id===e.agenceId);
@@ -3074,7 +3062,7 @@ function renderDayTab(type, dateStr) {
           'Prospect':'background:#e0f2fe;color:#0284c7',
           'Partenaire':'background:#e6f7ef;color:#0f9d58',
           'Pas intéressé':'background:#fee2e2;color:#e53e3e',
-          'Revoir':'background:#fef3c7;color:#f59e0b',
+          'Revoir':'background:#fef3c7;color:#d97706',
           'Mail en attente':'background:#ffedd5;color:#ea580c',
           'Bonne réception du mail':'background:#d6eef5;color:#1a7fa0',
           'Contrat en attente':'background:#ede9fe;color:#7c3aed',
@@ -3132,7 +3120,7 @@ function renderDayTab(type, dateStr) {
               onfocus="this.style.borderColor='var(--teal)'"
               onblur="this.style.borderColor=''"
             >${curNote}</textarea>
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;${curStatut==='Revoir'?'':'display:none !important'}">
               <div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;">Reporter dans</div>
               ${['1j','2j','3j','1s','2s','1m','2m'].map(k => `<div 
                 onclick="event.stopPropagation();setInlineReport('${ev.id}',${i},'${k}',this)"
@@ -3437,7 +3425,7 @@ function renderDashboardAgences(){
   document.getElementById('dba-nonint').textContent=nonint;document.getElementById('dba-nonint-pct').textContent=pct(nonint)+'% du total';
   document.getElementById('dba-revoir').textContent=revoir;document.getElementById('dba-mail').textContent=mail;
   document.getElementById('dba-bonrec').textContent=bonrec;document.getElementById('dba-contrat').textContent=contrat;
-  const tbody=document.getElementById('dba-table');
+  const tbody=document.getElementById('dba-table'); if(!tbody) return;
   if(!state.agences.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:32px">Aucune agence. Cliquez sur "+ Nouvelle agence" !</td></tr>';return;}
   tbody.innerHTML=state.agences.map(a=>{
     const badge=STATUT_AGENCE_BADGE[a.statut]||'badge-slate';
