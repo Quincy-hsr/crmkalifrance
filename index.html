@@ -1968,17 +1968,25 @@ function toggleInlineBilan(id) {
   el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
-function setInlineStatut(eventId, index, statut) {
-  const ev = state.events.find(e => e.id === eventId);
-  if (!ev) return;
-  if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
-  if (!ev.bilan.statuts) ev.bilan.statuts = {};
-  const agNom = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : String(index);
-  const key = 'ag_' + agNom.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-  ev.bilan.statuts[key] = statut;
-  saveState();
+// Simple in-memory store for bilan selections (survives without re-render)
+const _bilanSelections = {}; // key: "eventId-index", value: {statut, report}
 
-  // Update pill styles
+function setInlineStatut(eventId, index, statut) {
+  const key = eventId + '-' + index;
+  if (!_bilanSelections[key]) _bilanSelections[key] = {};
+  _bilanSelections[key].statut = statut;
+
+  // Also save to state for persistence
+  const ev = state.events.find(e => e.id === eventId);
+  if (ev) {
+    if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
+    if (!ev.bilan.statuts) ev.bilan.statuts = {};
+    const agNom = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : String(index);
+    const agKey = 'ag_' + agNom.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    ev.bilan.statuts[agKey] = statut;
+  }
+
+  // Update pill styles (no re-render)
   const panel = document.getElementById('inline-bilan-' + eventId + '-' + index);
   if (!panel) return;
 
@@ -1995,16 +2003,18 @@ function setInlineStatut(eventId, index, statut) {
     }
   });
 
-  // Show reporter section ONLY for "Revoir"
+  // Show/hide reporter section
   const reporterSection = document.getElementById('reporter-section-' + eventId + '-' + index);
   if (reporterSection) {
     reporterSection.style.display = statut === 'Revoir' ? 'flex' : 'none';
   }
 
-  // Always show Valider button once a statut is selected
+  // Show valider button
   const validerBtn = document.getElementById('valider-btn-' + eventId + '-' + index);
   if (validerBtn) validerBtn.style.display = 'inline-flex';
 }
+
+
 
 function setInlineReport(eventId, index, delay, el) {
   const ev = state.events.find(e => e.id === eventId);
@@ -2012,8 +2022,12 @@ function setInlineReport(eventId, index, delay, el) {
   if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
   if (!ev.bilan.reports) ev.bilan.reports = {};
   const agNom = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : String(index);
-  const key = 'ag_' + agNom.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-  ev.bilan.reports[key] = delay;
+  const agKey = 'ag_' + agNom.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+  ev.bilan.reports[agKey] = delay;
+  // Also store in memory cache
+  const selKey = eventId + '-' + index;
+  if (!_bilanSelections[selKey]) _bilanSelections[selKey] = {};
+  _bilanSelections[selKey].report = delay;
   saveState();
   // Update button styles
   const panel = el.closest('div[id^="inline-bilan"]') || el.parentElement;
@@ -2034,24 +2048,29 @@ function saveInlineBilan(eventId, index) {
   if (!ev) return;
   if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
 
-  const agNomS = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : index;
+  const selKey = eventId + '-' + index;
+  const agNomS = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : String(index);
   const key = 'ag_' + agNomS.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-  // Read statut directly from state (set by setInlineStatut)
-  const statut = ev.bilan && ev.bilan.statuts && ev.bilan.statuts[key];
+
+  // Read from memory cache first (most reliable), then fall back to state
+  const cached = _bilanSelections[selKey] || {};
+  const statut = cached.statut || (ev.bilan && ev.bilan.statuts && ev.bilan.statuts[key]);
   if (!statut) {
     showToast('⚠️ Sélectionnez un statut en appuyant dessus');
     return;
   }
+  const report = cached.report || (ev.bilan && ev.bilan.reports && ev.bilan.reports[key]) || '';
 
   // Save note
   const noteEl = document.getElementById('inline-note-' + eventId + '-' + index);
-  if (noteEl) {
+  const note = noteEl ? noteEl.value.trim() : '';
+  if (ev.bilan) {
     if (!ev.bilan.notes) ev.bilan.notes = {};
-    ev.bilan.notes[key] = noteEl.value.trim();
+    ev.bilan.notes[key] = note;
   }
 
-  const note = ev.bilan.notes ? ev.bilan.notes[key] || '' : '';
-  const report = ev.bilan.reports ? ev.bilan.reports[key] || '' : '';
+  // Clear memory cache for this entry
+  delete _bilanSelections[selKey];
 
   // Update agence in CRM
   const agenceNom = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : '';
@@ -2459,11 +2478,13 @@ setInterval(async () => {
     const newPartenaires = partRows.map(r => r.data);
     if (JSON.stringify(newAgences) !== JSON.stringify(state.agences) ||
         JSON.stringify(newEvents)  !== JSON.stringify(state.events)) {
-      state.agences = newAgences;
-      // Preserve visite-partenaire events (they use stable id 'vp-...')
-      const vpEvents = state.events.filter(e => e.type === 'visite-partenaire');
-      const mergedEvents = [...newEvents.filter(e => e.type !== 'visite-partenaire'), ...vpEvents];
-      state.events = mergedEvents;
+      const supaAgenceIds = new Set(newAgences.map(a => a.id));
+      const localOnlyAgences = state.agences.filter(a => !supaAgenceIds.has(a.id));
+      state.agences = [...newAgences, ...localOnlyAgences];
+      // Merge: keep all Supabase events + any local events not yet synced
+      const supaIds = new Set(newEvents.map(e => e.id));
+      const localOnly = state.events.filter(e => !supaIds.has(e.id));
+      state.events = [...newEvents, ...localOnly];
       saveState();
       const activePage = document.querySelector('.page.active');
       if (activePage) {
@@ -2680,9 +2701,20 @@ function setInlineReportCustomDate(eventId, index, dateVal) {
   if (!ev) return;
   if (!ev.bilan) ev.bilan = {statuts:{}, notes:{}, reports:{}};
   if (!ev.bilan.reports) ev.bilan.reports = {};
-  const agNomC = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : index;
+  const agNomC = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : String(index);
   const keyC = 'ag_' + agNomC.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-  ev.bilan.reports[keyC] = 'date:' + dateVal;
+  const reportVal = 'date:' + dateVal;
+  ev.bilan.reports[keyC] = reportVal;
+  // Save to memory cache
+  const selKey = eventId + '-' + index;
+  if (!_bilanSelections[selKey]) _bilanSelections[selKey] = {};
+  _bilanSelections[selKey].report = reportVal;
+  // Update button styles - highlight the date input
+  const dateInput = document.getElementById('inline-custom-date-' + eventId + '-' + index);
+  if (dateInput) {
+    dateInput.style.borderColor = 'var(--teal)';
+    dateInput.style.background = 'var(--teal-xl)';
+  }
   saveState();
 }
 
@@ -2742,8 +2774,15 @@ function editAgence(id){
   document.getElementById('modal-agence-title').textContent='Modifier agence';openModal('modal-agence');
 }
 function deleteAgence(id){
-  if(!confirm('Supprimer cette agence ?'))return;state.agences=state.agences.filter(a=>a.id!==id);
-  saveState();renderAgences();renderDashboardAgences();updateSelects();showToast('🗑️ Agence supprimée');
+  state.agences = state.agences.filter(a => a.id !== id);
+  // Also remove related events and partenaires
+  state.events = state.events.filter(e => e.agenceId !== id);
+  if (state.partenaires) state.partenaires = state.partenaires.filter(p => p.agenceId !== id);
+  saveState();
+  // Delete from Supabase so auto-refresh doesn't bring it back
+  deleteFromSupabase('agences', id);
+  renderAgences();renderDashboardAgences();renderCalendar();updateSelects();
+  showToast('🗑️ Agence supprimée');
 }
 function quickRelance(agenceId,delay){
   const n=state.events.filter(e=>e.type==='relance'&&e.agenceId===agenceId).length+1;
