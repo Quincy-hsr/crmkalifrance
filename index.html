@@ -1092,17 +1092,7 @@ select.form-control option { background: var(--surface); }
 
   /* Hamburger menu button */
   .hamburger {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    width: 36px; height: 36px;
-    border-radius: 8px;
-    background: var(--teal-xl);
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    margin-right: 10px;
-    flex-shrink: 0;
+    display: none !important;
   }
 
   /* Content padding */
@@ -1223,6 +1213,9 @@ select.form-control option { background: var(--surface); }
 
 /* Desktop — hide mobile elements */
 .hamburger { display: none; }
+@media (max-width: 768px) {
+  .hamburger { display: none !important; }
+}
 .bottom-nav { display: none; }
 .sidebar-overlay { display: none; }
 </style>
@@ -1246,7 +1239,7 @@ select.form-control option { background: var(--surface); }
 
   <nav class="nav">
     <div class="nav-group-label">Tableaux de bord</div>
-    <button class="nav-item active" onclick="showPage('db-agences')">
+    <button class="nav-item active" onclick="showPage('db-agences');closeSidebar()">
       <span class="nav-icon">🏢</span> Dashboard Agences
     </button>
 
@@ -2024,20 +2017,28 @@ function setInlineReport(eventId, index, delay, el) {
   const agNom = ev.agencesList && ev.agencesList[index] ? ev.agencesList[index].nom : String(index);
   const agKey = 'ag_' + agNom.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
   ev.bilan.reports[agKey] = delay;
-  // Also store in memory cache
   const selKey = eventId + '-' + index;
   if (!_bilanSelections[selKey]) _bilanSelections[selKey] = {};
   _bilanSelections[selKey].report = delay;
   saveState();
-  // Update button styles
-  const panel = el.closest('div[id^="inline-bilan"]') || el.parentElement;
+
+  // Reset ALL quick buttons and date input (mutual exclusion)
+  const panel = document.getElementById('inline-bilan-' + eventId + '-' + index);
   if (panel) {
     panel.querySelectorAll('[onclick*="setInlineReport"]').forEach(b => {
       b.style.borderColor = 'var(--border)';
       b.style.background = 'var(--surface)';
       b.style.color = 'var(--text3)';
     });
+    // Clear date input
+    const dateInput = document.getElementById('inline-custom-date-' + eventId + '-' + index);
+    if (dateInput) {
+      dateInput.value = '';
+      dateInput.style.borderColor = 'var(--border)';
+      dateInput.style.background = 'var(--surface)';
+    }
   }
+  // Highlight selected button
   el.style.borderColor = 'var(--teal)';
   el.style.background = 'var(--teal-xl)';
   el.style.color = 'var(--teal)';
@@ -2705,15 +2706,25 @@ function setInlineReportCustomDate(eventId, index, dateVal) {
   const keyC = 'ag_' + agNomC.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
   const reportVal = 'date:' + dateVal;
   ev.bilan.reports[keyC] = reportVal;
-  // Save to memory cache
   const selKey = eventId + '-' + index;
   if (!_bilanSelections[selKey]) _bilanSelections[selKey] = {};
   _bilanSelections[selKey].report = reportVal;
-  // Update button styles - highlight the date input
+
+  // Deselect all quick buttons (mutual exclusion)
+  const panel = document.getElementById('inline-bilan-' + eventId + '-' + index);
+  if (panel) {
+    panel.querySelectorAll('[onclick*="setInlineReport"]').forEach(b => {
+      b.style.borderColor = 'var(--border)';
+      b.style.background = 'var(--surface)';
+      b.style.color = 'var(--text3)';
+    });
+  }
+  // Highlight date input
   const dateInput = document.getElementById('inline-custom-date-' + eventId + '-' + index);
   if (dateInput) {
     dateInput.style.borderColor = 'var(--teal)';
     dateInput.style.background = 'var(--teal-xl)';
+    dateInput.style.color = 'var(--teal)';
   }
   saveState();
 }
@@ -2774,15 +2785,42 @@ function editAgence(id){
   document.getElementById('modal-agence-title').textContent='Modifier agence';openModal('modal-agence');
 }
 function deleteAgence(id){
+  const agence = state.agences.find(a => a.id === id);
+  const agNom = agence ? agence.nom : '';
+
+  // Remove agence from prospects
   state.agences = state.agences.filter(a => a.id !== id);
-  // Also remove related events and partenaires
-  state.events = state.events.filter(e => e.agenceId !== id);
+
+  // Remove only relances/rdv linked to this agence (not the tournée visits)
+  const eventsToDelete = state.events
+    .filter(e => e.agenceId === id && (e.type === 'relance' || e.type === 'rdv' || e.type === 'visite-partenaire'))
+    .map(e => e.id);
+  state.events = state.events.filter(e => !(e.agenceId === id && (e.type === 'relance' || e.type === 'rdv' || e.type === 'visite-partenaire')));
+
+  // Keep agence in tournée agencesList but clear its bilan (statut/note/report)
+  state.events.forEach(ev => {
+    if (ev.type === 'visite' && ev.agencesList && ev.bilan) {
+      const key = 'ag_' + agNom.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+      if (ev.bilan.statuts) delete ev.bilan.statuts[key];
+      if (ev.bilan.notes)   delete ev.bilan.notes[key];
+      if (ev.bilan.reports) delete ev.bilan.reports[key];
+    }
+  });
+
+  // Remove partenaire if exists
   if (state.partenaires) state.partenaires = state.partenaires.filter(p => p.agenceId !== id);
+
   saveState();
-  // Delete from Supabase so auto-refresh doesn't bring it back
+
+  // Delete from Supabase
   deleteFromSupabase('agences', id);
-  renderAgences();renderDashboardAgences();renderCalendar();updateSelects();
-  showToast('🗑️ Agence supprimée');
+  eventsToDelete.forEach(eid => deleteFromSupabase('events', eid));
+
+  renderAgences();
+  renderDashboardAgences();
+  renderCalendar();
+  updateSelects();
+  showToast('🗑️ ' + (agNom || 'Agence') + ' retirée des prospects');
 }
 function quickRelance(agenceId,delay){
   const n=state.events.filter(e=>e.type==='relance'&&e.agenceId===agenceId).length+1;
