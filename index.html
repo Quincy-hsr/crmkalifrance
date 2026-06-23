@@ -3299,7 +3299,7 @@ function renderDayTab(type, dateStr) {
                 const isSelected = curStatut === s;
                 return `<span 
                   onclick="event.stopPropagation();setInlineStatut('${ev.id}',${i},'${s}')"
-                  style="padding:5px 11px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .15s;${sStyle};border:2px solid ${isSelected?'currentColor':'transparent'};opacity:${isSelected?1:0.55};"
+                  style="padding:5px 11px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .15s;${sStyle};border:2px solid ${isSelected?'currentColor':'transparent'};opacity:${isSelected?1:0.45};transform:${isSelected?'scale(1.08)':'scale(1)'};"
                 >${s}</span>`;
               }).join('')}
             </div>
@@ -3310,7 +3310,7 @@ function renderDayTab(type, dateStr) {
               onfocus="this.style.borderColor='var(--teal)'"
               onblur="this.style.borderColor=''"
             >${curNote}</textarea>
-            <div id="reporter-section-${ev.id}-${i}" style="display:${curStatut==='Revoir'?'flex':'none'};gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+            <div id="reporter-section-${ev.id}-${i}" style="display:${(curStatut==='Revoir'||curReport)?'flex':'none'};gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
               <div style="font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;">Reporter dans</div>
               ${['1j','2j','3j','1s','2s','1m','2m'].map(k => `<div 
                 onclick="event.stopPropagation();setInlineReport('${ev.id}',${i},'${k}',this)"
