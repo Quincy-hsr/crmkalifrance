@@ -2612,8 +2612,8 @@ const REPORT_LABELS={'1j':'1 jour','2j':'2 jours','3j':'3 jours','1s':'1 semaine
 let state={agences:[],events:[],currentMonth:new Date().getMonth(),currentYear:new Date().getFullYear()};
 let bilanData={eventId:null,agences:[],newAgences:[],statuts:{},reports:{}};
 
-function loadState(){try{const s=localStorage.getItem('kalifrance-v5');if(s)state={...state,...JSON.parse(s)};}catch(e){}}
-function saveState(){try{localStorage.setItem('kalifrance-v5',JSON.stringify(state));}catch(e){}}
+function loadState(){ /* State loaded from Supabase only */ }
+function saveState(){ /* State managed by Supabase only */ }
 
 function showPage(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -3899,7 +3899,6 @@ function deletePartenaire(partId) {
 }
 
 // ===== INIT =====
-loadState();
 // Load from Supabase on startup
 loadFromSupabase().then(() => {
   renderDashboardAgences();
