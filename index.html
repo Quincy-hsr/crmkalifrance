@@ -3885,8 +3885,15 @@ function addDemenagPartenaire(partId, delta) {
 
 function deletePartenaire(partId) {
   state.partenaires = state.partenaires.filter(p => p.id !== partId);
-  saveState(); syncToSupabase();
+  // Remove visite-partenaire events for this partner
+  const vpId = 'vp-' + partId;
+  state.events = state.events.filter(e => e.id !== vpId);
+  saveState();
+  // Delete from Supabase explicitly
+  deleteFromSupabase('partenaires', partId);
+  deleteFromSupabase('events', vpId);
   renderPartenaires();
+  renderCalendar();
   closeModal('modal-partenaire-detail');
   showToast('🗑️ Partenaire supprimé');
 }
